@@ -11,6 +11,10 @@ const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full'
   },
+  {
+    path: 'diario',
+    loadChildren: () => import('./diario/diario.module').then( m => m.DiarioPageModule)
+  },
 ];
 
 @NgModule({
