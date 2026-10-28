@@ -1,0 +1,29 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>diario</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  
+  <!-- Barra de Ferramentas (Toolbar) para Formatação -->
+  <div class="toolbar-editor" *ngIf="editor">
+    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleBold().run()" [color]="editor.isActive('bold') ? 'primary' : 'medium'">
+      <ion-icon name="bold-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    
+    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleItalic().run()" [color]="editor.isActive('italic') ? 'primary' : 'medium'">
+      <ion-icon name="italic-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+
+    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleHeading({ level: 1 }).run()" [color]="editor.isActive('heading', { level: 1 }) ? 'primary' : 'medium'">
+      H1
+    </ion-button>
+  </div>
+
+  <!-- Área do Editor TipTap -->
+  <div class="editor-container">
+    <tiptap-editor [editor]="editor"></tiptap-editor>
+  </div>
+
+</ion-content>

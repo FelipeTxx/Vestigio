@@ -1,0 +1,26 @@
+.toolbar-editor {
+  background: #feffff;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  padding: 5px;
+  display: flex;
+  gap: 5px;
+}
+
+.editor-container {
+  border: 1px solid #ddd;
+  min-height: 200px;
+  background: #fff;
+  color: #0c0c0c; // Garante visibilidade mesmo no modo escuro do dispositivo
+
+  // Estiliza a área editável interna do ProseMirror gerada pelo TipTap
+  ::ng-deep .ProseMirror {
+    padding: 15px;
+    min-height: 180px;
+    outline: none; // Remove a borda azul padrão de foco do navegador
+
+    p {
+      margin: 0 0 10px 0;
+    }
+  }
+}
