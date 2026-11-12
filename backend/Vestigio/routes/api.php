@@ -8,3 +8,7 @@ Route::get('user/show/{id}', function ($id) {
         'id' => $id
     ]);
 });
+
+
+
+require_once app_path('Modules/User/Routes/api.php');

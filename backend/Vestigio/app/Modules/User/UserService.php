@@ -1,22 +1,25 @@
 <?php
 
-namespace App\Modules\Diarios\Diario;
+namespace App\Modules\User;
 
-class DiarioService
+class UserService
 {
     public function listar()
     {
-        return Diario::all();
+        return User::all();
     }
 
     public function criar(array $dados)
     {
-        return Diario::create($dados);
+        info($dados);
+        return;
+        return User::create($dados);
     }
 
     public function buscar(int $id)
     {
-        return Diario::findOrFail($id);
+        info("buscar");
+        return User::findOrFail($id);
     }
 
     public function atualizar(int $id, array $dados)
