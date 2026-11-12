@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Modules\Users\User\Http;
+namespace App\Modules\User\Http;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\StoreUserJob;
 use Illuminate\Http\Request;
-use App\Modules\Users\User\UserService;
+use App\Modules\User\UserService;
 
 class UserController extends Controller
 {
@@ -19,13 +20,13 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        info("chegou");
         $dados = $request->validate([
-            'titulo' => 'required|string|max:255',
-            'conteudo' => 'nullable|string',
+            'email' => 'required',
+            'password' => 'required',
+            'name' => 'required'
         ]);
-
-        $dados['user_id'] = $request->user()?->id;
+        
+        StoreUserJob::dispatch($dados);
 
         return response()->json(
             $this->service->criar($dados),
@@ -41,8 +42,7 @@ class UserController extends Controller
     public function update(Request $request, int $id)
     {
         $dados = $request->validate([
-            'titulo' => 'sometimes|required|string|max:255',
-            'conteudo' => 'nullable|string',
+           
         ]);
 
         return response()->json(

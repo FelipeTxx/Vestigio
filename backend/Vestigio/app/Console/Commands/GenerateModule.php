@@ -7,20 +7,19 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 class GenerateModule extends Command
 {
-    protected $signature = 'module:generate {module} {name}';
+    protected $signature = 'module:generate {name}';
 
     protected $description = 'Gera a estrutura de um módulo';
 
     public function handle()
     {
-        $module = Str::studly($this->argument('module'));
         $name = Str::studly($this->argument('name'));
 
-        $namespace = "App\\Modules\\{$module}\\{$name}";
-        $path = app_path("Modules/{$module}/{$name}");
+        $namespace = "App\\Modules\\{$name}";
+        $path = app_path("Modules/{$name}");
 
         if (File::exists($path)) {
-            $this->error("O módulo {$module}/{$name} já existe.");
+            $this->error("O módulo {$name} já existe.");
             return self::FAILURE;
         }
 
@@ -117,11 +116,8 @@ class {$name}Controller extends Controller
     public function store(Request \$request)
     {
         \$dados = \$request->validate([
-            'titulo' => 'required|string|max:255',
-            'conteudo' => 'nullable|string',
+            
         ]);
-
-        \$dados['user_id'] = \$request->user()?->id;
 
         return response()->json(
             \$this->service->criar(\$dados),
@@ -137,8 +133,7 @@ class {$name}Controller extends Controller
     public function update(Request \$request, int \$id)
     {
         \$dados = \$request->validate([
-            'titulo' => 'sometimes|required|string|max:255',
-            'conteudo' => 'nullable|string',
+           
         ]);
 
         return response()->json(
@@ -202,14 +197,14 @@ PHP;
         }
 
         // Registrar rotas da API
-        $this->registerApiRoutes($module, $name);
+        $this->registerApiRoutes($name);
 
-        $this->info("Módulo {$module}/{$name} criado com sucesso!");
+        $this->info("Módulo {$name} criado com sucesso!");
 
         return self::SUCCESS;
     }
 
-    private function registerApiRoutes(string $module, string $name): void
+    private function registerApiRoutes(string $name): void
     {
         $routesFile = base_path('routes/api.php');
 
@@ -218,7 +213,7 @@ PHP;
             return;
         }
 
-        $require = "require_once app_path('Modules/{$module}/{$name}/Routes/api.php');";
+        $require = "require_once app_path('Modules/{$name}/Routes/api.php');";
 
         if (!str_contains(File::get($routesFile), $require)) {
             File::append($routesFile, "\n\n{$require}\n");
