@@ -14,7 +14,11 @@ const routes: Routes = [
   {
     path: 'diario',
     loadChildren: () => import('./diario/diario.module').then( m => m.DiarioPageModule)
+  },  {
+    path: 'login',
+    loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule)
   },
+
 ];
 
 @NgModule({
