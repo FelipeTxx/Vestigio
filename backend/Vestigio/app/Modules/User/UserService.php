@@ -11,6 +11,8 @@ class UserService
 
     public function criar(array $dados)
     {
+        info($dados);
+        return;
         return User::create($dados);
     }
 
