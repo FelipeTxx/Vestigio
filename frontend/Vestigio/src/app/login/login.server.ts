@@ -15,6 +15,6 @@ export class LoginServer {
   }
 
   createUser(user: any) {
-    return this.http.post(`${this.apiUrl}/users`, user);
+    return this.http.post(`${this.apiUrl}/create-user `, user);
   }
 }
