@@ -74,4 +74,31 @@ class UserController extends Controller
             201
         );
     }
+    public function login(Request $request)
+    {
+        // Recebe e valida os dados enviados pelo Ionic.
+        $dados = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        // Procura o usuário pelo e-mail.
+        $user = User::where('email', $dados['email'])->first();
+
+        // Verifica se o usuário existe e se a senha está correta.
+        if (!$user || !Hash::check($dados['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Email ou senha incorretos!'
+            ], 401);
+        }
+
+        // Gera um token de acesso para o aplicativo.
+        $token = $user->createToken('ionic-app')->plainTextToken;
+
+        // Devolve o token e os dados do usuário ao frontend.
+        return response()->json([
+            'token' => $token,
+            'user' => $user
+        ]);
+    }
 }

@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginServer } from './login.server';
-import { HelpingService } from '../HelpingService/helpingService';
+import { HelpingService } from '../services/HelpingServices/helpingService';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 
 @Component({
@@ -27,7 +28,8 @@ export class LoginPage implements OnInit {
     private http: HttpClient,
     private loginServer: LoginServer,
     private helpingService: HelpingService,
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
   ) { 
     this.loginServer = loginServer;
   }
@@ -86,6 +88,31 @@ export class LoginPage implements OnInit {
       }
       
     })
+  }
+
+  login() {
+
+    this.authService.login(this.user).subscribe({
+
+      next: (response) => {
+
+        // Login realizado e token armazenado.
+        console.log('Usuário autenticado!', response.user);
+
+        // Redireciona para a página principal.
+        this.router.navigate(['/home']);
+
+      },
+
+      error: (err) => {
+
+        // Exibe o erro retornado pelo Laravel.
+        console.log(err.error.message);
+
+      }
+
+    });
+
   }
   
 
