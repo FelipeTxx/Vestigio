@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginServer } from './login.server';
 import { HelpingService } from '../HelpingService/helpingService';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -25,7 +26,8 @@ export class LoginPage implements OnInit {
   constructor(
     private http: HttpClient,
     private loginServer: LoginServer,
-    private helpingService: HelpingService
+    private helpingService: HelpingService,
+    private router: Router
   ) { 
     this.loginServer = loginServer;
   }
@@ -51,7 +53,9 @@ export class LoginPage implements OnInit {
     }
     this.loginServer.createUser(this.user).subscribe({
       next: (response: any)=>{
-        console.log(response)
+        this.helpingService.showToast("Criado!", "success");
+        this.router.navigate(['/home']);
+        
       },
       error: (err) => {
         this.helpingService.showToast(err.error.message);
@@ -61,7 +65,27 @@ export class LoginPage implements OnInit {
   }
 
   log(){
+    if (!this.user.email?.trim()) {
+      this.helpingService.showToast('Preencha seu email.');
+      return;
+    }
 
+    if (!this.user.password?.trim()) {
+      this.helpingService.showToast('Preencha sua senha.');
+      return;
+    }
+
+    this.loginServer.bad_login(this.user).subscribe({
+      next: (response: any)=>{
+        this.helpingService.showToast("Acessou!", "success");
+        this.router.navigate(['/home']);
+        
+      },
+      error: (err) => {
+        this.helpingService.showToast(err.error.message);
+      }
+      
+    })
   }
   
 

@@ -3,6 +3,7 @@
 namespace App\Modules\User;
 
 use DB;
+use Hash;
 use Illuminate\Validation\ValidationException;
 
 class UserService
@@ -31,7 +32,6 @@ class UserService
 
     public function buscar(int $id)
     {
-        info("buscar");
         return User::findOrFail($id);
     }
 
@@ -46,5 +46,17 @@ class UserService
     public function excluir(int $id)
     {
         return $this->buscar($id)->delete();
+    }
+
+
+    public function bad_login($request){
+        $log = $this->model->where('email', $request['email'])->first();
+        if ($log && Hash::check($request['password'], $log->password)) {
+            return $request;
+        } else {
+            throw ValidationException::withMessages([
+                'error' => ['Email ou Senha incorretos!']
+            ]);
+        }
     }
 }
