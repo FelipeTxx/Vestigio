@@ -119,6 +119,7 @@
   },
   "cli": {
     "schematicCollections": [
+      "@vestigio/schematics",
       "@ionic/angular-toolkit"
     ],
     "analytics": "d59b7d9b-5b04-45cf-a64e-5335d5012ee2"

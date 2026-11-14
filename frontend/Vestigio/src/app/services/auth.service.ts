@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, finalize, tap } from 'rxjs';
+import { BehaviorSubject, Observable, finalize, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,9 @@ export class AuthService {
 
   // Endereço da API Laravel.
   readonly apiUrl = 'http://127.0.0.1:8000/api';
+  private currentUser: any = null;
+  private readonly sessionState = new BehaviorSubject<boolean>(this.isLoggedIn());
+  readonly sessionState$ = this.sessionState.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -20,6 +23,8 @@ export class AuthService {
       // Executa quando o Laravel responde com sucesso.
       tap((response: any) => {
         localStorage.setItem('token', response.token);
+        this.currentUser = response.user;
+        this.sessionState.next(true);
       })
 
     );
@@ -36,14 +41,22 @@ export class AuthService {
   }
 
   clearToken(): void {
+    this.currentUser = null;
+    this.sessionState.next(false);
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('token');
     }
   }
 
+  getCurrentUser(): any {
+    return this.currentUser;
+  }
+
   // Solicita os dados do usuário autenticado.
   me(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/me`);
+    return this.http.get(`${this.apiUrl}/me`).pipe(
+      tap(user => this.currentUser = user)
+    );
   }
 
   // Realiza logout e remove o token local.

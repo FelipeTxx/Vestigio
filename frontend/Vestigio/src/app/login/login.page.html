@@ -15,17 +15,17 @@
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <ion-input label="Nome" [(ngModel)]="user.name" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
+            <ion-input label="Nome" type="text" [(ngModel)]="user.name" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <ion-input label="Email" [(ngModel)]="user.email" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
+            <ion-input label="Email" type="email" [(ngModel)]="user.email" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <ion-input label="Senha" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
+            <ion-input label="Senha" type="password" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
           </ion-col>
         </ion-row>
         <ion-row class="ion-text-center">
@@ -33,7 +33,7 @@
             <ion-button (click)="store(); sign_in = false; log_in = true;" fill="outline">Cadastrar</ion-button>
           </ion-col>
           <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = false; log_in = true;">não tem uma conta? Cadastrar-se!</a>
+            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = false; log_in = true;">Já tem uma conta? Entre!</a>
           </ion-col>
         </ion-row>
       </ion-col>
@@ -52,7 +52,7 @@
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <ion-input label="Senha" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
+            <ion-input label="Senha" type="password" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
           </ion-col>
         </ion-row>
         <ion-row class="ion-text-center">
@@ -60,7 +60,7 @@
             <ion-button (click)="login()" fill="outline">Logar</ion-button>
           </ion-col>
           <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = true; log_in = false;">Já tem uma conta? Entre!</a>
+            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = true; log_in = false;">Não tem uma conta? Cadastrar-se!</a>
           </ion-col>
         </ion-row>
       </ion-col>

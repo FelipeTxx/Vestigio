@@ -1,0 +1,11 @@
+{
+  "$schema": "../../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "module": {
+      "description": "Cria um módulo Ionic e registra sua entrada no menu Vestígio.",
+      "factory": "./module/index#module",
+      "schema": "./module/schema.json",
+      "aliases": []
+    }
+  }
+}
