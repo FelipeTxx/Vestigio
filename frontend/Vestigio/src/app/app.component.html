@@ -1,3 +1,100 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <div class="workspace-shell" [class.public-page]="!isWorkspaceVisible"
+       [class.sidebar-compact]="sidebarMode === 'compact'"
+       [class.sidebar-hidden]="sidebarMode === 'hidden'">
+    <aside *ngIf="isWorkspaceVisible" class="sidebar" [class.compact]="sidebarMode === 'compact'"
+           [class.hidden]="sidebarMode === 'hidden'">
+      <div class="sidebar-rail">
+        <button class="brand-mark" type="button" aria-label="Vestígio, início" routerLink="/home">
+          <ion-icon name="grid-outline"></ion-icon>
+        </button>
+
+        <button class="rail-control" type="button"
+                [attr.aria-label]="sidebarMode === 'expanded' ? 'Recolher menu' : 'Expandir menu'"
+                [title]="sidebarMode === 'expanded' ? 'Recolher menu' : 'Expandir menu'"
+                (click)="setSidebarMode(sidebarMode === 'expanded' ? 'compact' : 'expanded')">
+          <ion-icon [name]="sidebarMode === 'expanded' ? 'chevron-back-outline' : 'chevron-forward-outline'"></ion-icon>
+        </button>
+
+        <nav class="rail-shortcuts" aria-label="Atalhos dos módulos">
+          <a *ngFor="let section of visibleSections" class="rail-link"
+             [routerLink]="section.items[0].route" routerLinkActive="active"
+             [routerLinkActiveOptions]="{ exact: false }"
+             [attr.aria-label]="section.items[0].label" [title]="section.items[0].label">
+            <ion-icon [name]="section.items[0].icon"></ion-icon>
+          </a>
+        </nav>
+
+        <div class="rail-spacer"></div>
+        <button class="account-avatar account-trigger" type="button" [title]="displayName"
+                aria-label="Abrir menu do usuário" [attr.aria-expanded]="userMenuOpen"
+                (click)="toggleUserMenu()">
+          {{ initials }}
+        </button>
+      </div>
+
+      <div class="navigation-panel" *ngIf="sidebarMode === 'expanded'">
+        <header class="panel-heading">
+          <div class="brand-copy">
+            <span class="brand-eyebrow">VESTÍGIO</span>
+            <strong>Seu espaço</strong>
+          </div>
+          <button class="icon-button hide-control" type="button" aria-label="Ocultar menu"
+                  title="Ocultar menu" (click)="setSidebarMode('hidden')">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
+        </header>
+
+        <div class="nav-scroll-area">
+          <section class="nav-section" *ngFor="let section of visibleSections">
+            <button class="section-heading" type="button" (click)="toggleSection(section.id)"
+                    [attr.aria-expanded]="!isSectionCollapsed(section.id)">
+              <span>{{ section.title }}</span>
+              <ion-icon [name]="isSectionCollapsed(section.id) ? 'chevron-forward-outline' : 'chevron-down-outline'"></ion-icon>
+            </button>
+
+            <div class="section-items" *ngIf="!isSectionCollapsed(section.id)">
+              <a class="module-link" *ngFor="let item of section.items"
+                 [routerLink]="item.route" routerLinkActive="active"
+                 [routerLinkActiveOptions]="{ exact: true }">
+                <span class="module-icon"><ion-icon [name]="item.icon"></ion-icon></span>
+                <span class="module-label">{{ item.label }}</span>
+              </a>
+            </div>
+          </section>
+        </div>
+
+        <footer class="account-card">
+          <div class="account-avatar footer-avatar">{{ initials }}</div>
+          <div class="account-copy">
+            <span class="account-caption">Conectado como</span>
+            <strong [title]="displayName">{{ displayName }}</strong>
+          </div>
+        </footer>
+      </div>
+    </aside>
+
+    <button *ngIf="userMenuOpen" class="user-menu-backdrop" type="button"
+            aria-label="Fechar menu do usuário" (click)="closeUserMenu()"></button>
+    <section *ngIf="userMenuOpen" class="user-popover" aria-label="Menu do usuário">
+      <div class="popover-identity">
+        <span class="popover-caption">Conta</span>
+        <strong [title]="displayName">{{ displayName }}</strong>
+      </div>
+      <div class="popover-divider"></div>
+      <button class="logout-action" type="button" (click)="logout()">
+        <ion-icon name="log-out-outline"></ion-icon>
+        <span>Sair</span>
+      </button>
+    </section>
+
+    <button *ngIf="shouldShowReopenButton" class="sidebar-reopen" type="button"
+            aria-label="Abrir menu" title="Abrir menu" (click)="setSidebarMode('expanded')">
+      <ion-icon name="menu-outline"></ion-icon>
+    </button>
+
+    <main class="workspace-main">
+      <ion-router-outlet></ion-router-outlet>
+    </main>
+  </div>
 </ion-app>

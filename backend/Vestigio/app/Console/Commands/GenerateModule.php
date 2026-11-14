@@ -198,6 +198,7 @@ PHP;
 
         // Registrar rotas da API
         $this->registerApiRoutes($name);
+        $this->registerFrontendNavigation($name);
 
         $this->info("Módulo {$name} criado com sucesso!");
 
@@ -218,5 +219,37 @@ PHP;
         if (!str_contains(File::get($routesFile), $require)) {
             File::append($routesFile, "\n\n{$require}\n");
         }
+    }
+
+    private function registerFrontendNavigation(string $name): void
+    {
+        $navigationFile = dirname(base_path(), 2)
+            . '/frontend/Vestigio/src/app/navigation/navigation.config.ts';
+
+        if (!File::exists($navigationFile)) {
+            $this->warn('Configuração do menu lateral não encontrada.');
+            return;
+        }
+
+        $contents = File::get($navigationFile);
+        $slug = Str::kebab($name);
+        $id = Str::snake($name);
+        $marker = '  // </generated-modules>';
+
+        if (!str_contains($contents, $marker)) {
+            $this->warn('Marcador dos módulos gerados não encontrado no menu.');
+            return;
+        }
+
+        if (str_contains($contents, "id: '{$id}'")) {
+            $this->warn("O módulo {$name} já está listado no menu.");
+            return;
+        }
+
+        $label = addslashes($name);
+        $item = "  { id: '{$id}', label: '{$label}', route: '/{$slug}', icon: 'cube-outline' },\n";
+        File::put($navigationFile, str_replace($marker, $item . $marker, $contents));
+
+        $this->info("Módulo {$name} adicionado ao menu lateral.");
     }
 }

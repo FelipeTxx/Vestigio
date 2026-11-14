@@ -83,7 +83,7 @@ export class LoginPage implements OnInit {
       next: (response) => {
 
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-        this.router.navigateByUrl(returnUrl?.startsWith('/') ? returnUrl : '/home');
+        this.router.navigateByUrl(returnUrl?.startsWith('/') ? returnUrl : '/');
 
       },
 

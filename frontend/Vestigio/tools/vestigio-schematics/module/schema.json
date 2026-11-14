@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Vestígio module options",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome do módulo.",
+      "$default": { "$source": "argv", "index": 0 },
+      "x-prompt": "Qual será o nome do módulo?"
+    },
+    "path": { "type": "string", "format": "path", "visible": false },
+    "project": {
+      "type": "string",
+      "description": "Projeto Angular de destino.",
+      "$default": { "$source": "projectName" }
+    },
+    "routing": { "type": "boolean", "default": true, "visible": false },
+    "flat": { "type": "boolean", "default": false },
+    "route": { "type": "string" },
+    "module": { "type": "string", "alias": "m" },
+    "commonModule": { "type": "boolean", "default": true, "visible": false },
+    "typeSeparator": { "type": "string", "enum": ["-", "."], "default": "-" },
+    "routingScope": { "type": "string", "enum": ["Child", "Root"], "default": "Child" }
+  },
+  "required": ["name", "project"]
+}
