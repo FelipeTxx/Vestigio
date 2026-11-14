@@ -1,26 +1,703 @@
-.toolbar-editor {
-  background: #feffff;
-  border: 1px solid #ddd;
-  border-bottom: none;
-  padding: 5px;
+app-diario {
+  display: block;
+  min-height: 100%;
+}
+
+ion-content.diary-content {
+  --background: #f4f1ec;
+  --padding-bottom: 35px;
+}
+
+.diary-page {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: clamp(28px, 5vw, 58px) clamp(20px, 5vw, 64px) 35px;
+  color: #232832;
+  background:
+    radial-gradient(ellipse at 86% 7%, rgba(224, 211, 197, 0.28), transparent 29%),
+    #f4f1ec;
+}
+
+.diary-intro {
   display: flex;
+  width: min(900px, 100%);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 auto 42px;
+}
+
+.intro-copy {
+  max-width: 620px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #9a7564;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+}
+
+.eyebrow ion-icon {
+  font-size: 15px;
+}
+
+.intro-copy h1 {
+  margin: 13px 0 10px;
+  color: #252a33;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(30px, 4vw, 43px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+}
+
+.intro-copy p {
+  margin: 0;
+  color: #737a83;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.journal-count {
+  display: flex;
+  min-width: 76px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 4px;
+  padding: 11px 16px 10px;
+  color: #6d5d58;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(108, 84, 73, 0.09);
+  border-radius: 15px;
+}
+
+.journal-count span {
+  color: #34303a;
+  font-size: 19px;
+  font-weight: 650;
+}
+
+.journal-count small {
+  color: #89817e;
+  font-size: 10px;
+}
+
+.roadmap-section {
+  width: min(800px, 100%);
+  margin: 0 auto;
+}
+
+.roadmap-track {
+  position: relative;
+  padding: 4px 0 16px;
+}
+
+.roadmap-track::before {
+  position: absolute;
+  top: 8px;
+  bottom: 26px;
+  left: 50%;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, #d7c5b8 0 5px, transparent 5px 12px);
+  content: '';
+  transform: translateX(-50%);
+}
+
+.roadmap-node {
+  position: relative;
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin-bottom: 35px;
+}
+
+.roadmap-node.node-left {
+  align-items: flex-end;
+  padding-right: 43px;
+}
+
+.roadmap-node.node-right {
+  align-items: flex-start;
+  margin-left: 50%;
+  padding-left: 43px;
+}
+
+.roadmap-date {
+  margin: 0 3px 10px;
+  color: #a69b92;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.path-dot {
+  position: absolute;
+  z-index: 2;
+  top: 42px;
+  display: grid;
+  width: 13px;
+  height: 13px;
+  place-items: center;
+  background: #f4f1ec;
+  border: 2px solid #c9aa96;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px #f4f1ec;
+}
+
+.node-left .path-dot {
+  right: -7px;
+}
+
+.node-right .path-dot {
+  left: -7px;
+}
+
+.notebook-card {
+  position: relative;
+  display: flex;
+  width: min(100%, 320px);
+  min-height: 154px;
+  align-items: stretch;
+  overflow: visible;
+  padding: 0;
+  color: #39353a;
+  text-align: left;
+  background: var(--cover, #ead8c8);
+  border: 1px solid rgba(57, 46, 44, 0.08);
+  border-radius: 9px 15px 15px 9px;
+  box-shadow: 0 9px 22px rgba(57, 46, 44, 0.075), 0 2px 4px rgba(57, 46, 44, 0.045);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.notebook-card:hover {
+  box-shadow: 0 15px 29px rgba(57, 46, 44, 0.13), 0 3px 6px rgba(57, 46, 44, 0.06);
+  transform: translateY(-3px) rotate(-0.4deg);
+}
+
+.notebook-card:active {
+  transform: translateY(0) scale(0.99);
+}
+
+.cover-clay { --cover: #ead9cb; --cover-deep: #b7836b; }
+.cover-sage { --cover: #dde5d9; --cover-deep: #7c9181; }
+.cover-lilac { --cover: #e2ddeb; --cover-deep: #8c7d9c; }
+.cover-sand { --cover: #eee4cf; --cover-deep: #b7985f; }
+
+.notebook-binding {
+  z-index: 1;
+  width: 14px;
+  flex: 0 0 14px;
+  background: linear-gradient(90deg, rgba(62, 49, 45, 0.2), rgba(62, 49, 45, 0.04));
+  border-right: 1px solid rgba(62, 49, 45, 0.1);
+  border-radius: 8px 0 0 8px;
+}
+
+.notebook-pages {
+  position: absolute;
+  right: -4px;
+  bottom: 5px;
+  left: 17px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(57, 46, 44, 0.08);
+  border-top: 0;
+  border-radius: 0 0 9px 5px;
+}
+
+.notebook-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px 15px 17px 16px;
+}
+
+.notebook-kicker {
+  margin-bottom: 8px;
+  color: var(--cover-deep);
+  font-size: 8px;
+  font-weight: 750;
+  letter-spacing: 0.17em;
+}
+
+.notebook-copy strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: #3c3738;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notebook-excerpt {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  margin-top: 7px;
+  color: #706b68;
+  font-size: 10px;
+  line-height: 1.5;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.notebook-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+  padding-top: 10px;
+  color: var(--cover-deep);
+  font-size: 9px;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.notebook-card:hover .notebook-open,
+.notebook-card:focus-visible .notebook-open {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notebook-stamp {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  place-items: center;
+  align-self: flex-start;
+  margin: 16px 14px 0 0;
+  color: var(--cover-deep);
+  font-size: 17px;
+  background: rgba(255, 255, 255, 0.27);
+  border: 1px solid rgba(255, 255, 255, 0.29);
+  border-radius: 50%;
+}
+
+.add-node {
+  align-items: center;
+  width: 100%;
+  margin: 2px 0 0;
+  padding: 0;
+}
+
+.add-dot {
+  top: 21px;
+  left: 50%;
+  width: 28px;
+  height: 28px;
+  color: #8d6c5e;
+  font-size: 17px;
+  background: #f4f1ec;
+  border: 1px solid #d9b6a0;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.add-notebook {
+  display: flex;
+  width: min(290px, 90%);
+  min-height: 82px;
+  align-items: center;
+  gap: 14px;
+  margin-top: 37px;
+  padding: 15px 18px;
+  color: #48434a;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px dashed #c9aa96;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.add-notebook:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #a87e6c;
+  transform: translateY(-2px);
+}
+
+.add-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  color: #805e51;
+  font-size: 20px;
+  background: #efe3d9;
+  border-radius: 12px;
+}
+
+.add-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.add-copy strong {
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.add-copy small {
+  color: #85807e;
+  font-size: 10px;
+}
+
+.roadmap-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px auto 0;
+  color: #93877f;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.note-sparkle {
+  color: #bd927b;
+  font-size: 15px;
+}
+
+.writer-mode {
+  padding-top: 20px;
+}
+
+.writing-shell {
+  width: min(810px, 100%);
+  margin: 0 auto;
+}
+
+.writing-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  color: #6c7079;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.back-button ion-icon {
+  font-size: 17px;
+}
+
+.back-button:hover {
+  color: #343943;
+  background: rgba(255, 255, 255, 0.63);
+}
+
+.save-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #7c8c7f;
+  font-size: 10px;
+}
+
+.save-indicator ion-icon {
+  font-size: 15px;
+}
+
+.writing-paper {
+  padding: clamp(24px, 6vw, 54px) clamp(22px, 7vw, 72px) 24px;
+  background: #fbfaf7;
+  border: 1px solid rgba(88, 73, 65, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 16px 42px rgba(47, 40, 37, 0.07), 0 2px 5px rgba(47, 40, 37, 0.03);
+}
+
+.writing-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.writing-date {
+  color: #a39a91;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.local-badge {
+  padding: 5px 8px;
+  color: #8d786d;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  background: #f0e9e2;
+  border-radius: 20px;
+}
+
+.diary-title-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 21px;
+  padding: 0 0 16px;
+  color: #2c3039;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(25px, 4vw, 34px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #eee9e2;
+  outline: 0;
+}
+
+.diary-title-input::placeholder {
+  color: #c1bab3;
+}
+
+.editor-toolbar {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding: 4px 7px;
+  background: #f4f1ec;
+  border: 1px solid #ebe6df;
+  border-radius: 11px;
+}
+
+.editor-toolbar button {
+  display: grid;
+  width: 32px;
+  height: 31px;
+  place-items: center;
+  color: #76716d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.editor-toolbar button:hover,
+.editor-toolbar button.toolbar-active {
+  color: #765546;
+  background: #e8d9ce;
+}
+
+.editor-toolbar ion-icon {
+  font-size: 16px;
+}
+
+.heading-tool {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 19px;
+  margin: 0 4px;
+  background: #ddd5cd;
+}
+
+.editor-surface {
+  min-height: 380px;
+  padding: 20px 4px 26px;
+  color: #4c4a49;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+.editor-surface .ProseMirror {
+  min-height: 340px;
+  outline: none;
+}
+
+.editor-surface .ProseMirror p {
+  margin: 0 0 1.05em;
+}
+
+.editor-surface .ProseMirror h2 {
+  margin: 1.35em 0 0.6em;
+  color: #36363b;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.editor-surface .ProseMirror blockquote {
+  margin: 1.2em 0;
+  padding: 3px 0 3px 16px;
+  color: #8a6d60;
+  border-left: 2px solid #c69d85;
+}
+
+.editor-surface .ProseMirror ul {
+  padding-left: 24px;
+}
+
+.editor-surface .ProseMirror:focus-visible {
+  outline: none;
+}
+
+.writing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 15px;
+  color: #a19a93;
+  font-size: 10px;
+  border-top: 1px solid #eee9e2;
+}
+
+.writing-footer span:last-child {
+  display: inline-flex;
+  align-items: center;
   gap: 5px;
 }
 
-.editor-container {
-  border: 1px solid #ddd;
-  min-height: 200px;
-  background: #fff;
-  color: #0c0c0c; // Garante visibilidade mesmo no modo escuro do dispositivo
+.writing-footer ion-icon {
+  font-size: 14px;
+}
 
-  // Estiliza a área editável interna do ProseMirror gerada pelo TipTap
-  ::ng-deep .ProseMirror {
-    padding: 15px;
-    min-height: 180px;
-    outline: none; // Remove a borda azul padrão de foco do navegador
+@media (max-width: 680px) {
+  .diary-page {
+    padding: 27px 20px 32px;
+  }
 
-    p {
-      margin: 0 0 10px 0;
-    }
+  .diary-intro {
+    align-items: flex-start;
+    margin-bottom: 35px;
+  }
+
+  .journal-count {
+    min-width: 57px;
+    padding: 9px 10px;
+  }
+
+  .roadmap-track::before {
+    left: 11px;
+    transform: none;
+  }
+
+  .roadmap-node,
+  .roadmap-node.node-left,
+  .roadmap-node.node-right {
+    width: 100%;
+    align-items: stretch;
+    margin-left: 0;
+    padding: 0 0 0 39px;
+  }
+
+  .roadmap-date {
+    align-self: flex-start;
+    margin-left: 2px;
+  }
+
+  .path-dot,
+  .node-left .path-dot,
+  .node-right .path-dot {
+    top: 41px;
+    right: auto;
+    left: 4px;
+  }
+
+  .add-node {
+    align-items: stretch !important;
+  }
+
+  .add-dot {
+    top: 26px !important;
+    left: 11px !important;
+  }
+
+  .add-notebook {
+    width: 100%;
+    margin-top: 41px;
+  }
+
+  .notebook-card {
+    width: 100%;
+  }
+
+  .notebook-open {
+    opacity: 1;
+    transform: none;
+  }
+
+  .roadmap-note {
+    justify-content: flex-start;
+    margin-left: 39px;
+    font-size: 11px;
+  }
+
+  .writer-mode {
+    padding: 15px 0 25px;
+  }
+
+  .writing-topbar {
+    margin-bottom: 12px;
+  }
+
+  .writing-paper {
+    padding: 25px 20px 18px;
+    border-radius: 15px;
+  }
+
+  .editor-surface {
+    min-height: 52vh;
+    padding: 18px 2px 24px;
+    font-size: 15px;
+  }
+
+  .editor-surface .ProseMirror {
+    min-height: 48vh;
+  }
+
+  .writing-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .notebook-card,
+  .add-notebook,
+  .back-button,
+  .editor-toolbar button {
+    transition-duration: 0.01ms;
   }
 }

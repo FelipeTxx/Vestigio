@@ -1,29 +1,105 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>diario</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="diary-content" [fullscreen]="true">
+  <div class="diary-page" [class.writer-mode]="view === 'writer'">
+    <ng-container *ngIf="view === 'roadmap'; else writingView">
+      <header class="diary-intro">
+        <div class="intro-copy">
+          <span class="eyebrow"><ion-icon name="book-outline"></ion-icon> UM ESPAÇO SEU</span>
+          <h1>Seu caminho, em palavras.</h1>
+          <p>Um caderno de cada vez. Volte quando quiser guardar um momento.</p>
+        </div>
+        <div class="journal-count" aria-label="Quantidade de diários">
+          <span>{{ diaries.length }}</span>
+          <small>{{ diaries.length === 1 ? 'caderno' : 'cadernos' }}</small>
+        </div>
+      </header>
 
-<ion-content class="ion-padding">
-  
-  <!-- Barra de Ferramentas (Toolbar) para Formatação -->
-  <div class="toolbar-editor" *ngIf="editor">
-    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleBold().run()" [color]="editor.isActive('bold') ? 'primary' : 'medium'">
-      <ion-icon name="bold-outline" slot="icon-only"></ion-icon>
-    </ion-button>
-    
-    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleItalic().run()" [color]="editor.isActive('italic') ? 'primary' : 'medium'">
-      <ion-icon name="italic-outline" slot="icon-only"></ion-icon>
-    </ion-button>
+      <section class="roadmap-section" aria-label="Seus diários em ordem cronológica">
+        <div class="roadmap-track">
+          <article class="roadmap-node" *ngFor="let diary of diaries; let i = index"
+                   [class.node-left]="i % 2 === 0" [class.node-right]="i % 2 !== 0">
+            <span class="roadmap-date">{{ formattedDate(diary.date) }}</span>
+            <span class="path-dot" aria-hidden="true"></span>
+            <button class="notebook-card" [ngClass]="coverClass(i)" type="button"
+                    (click)="openDiary(diary)" [attr.aria-label]="'Abrir o diário ' + diary.title">
+              <span class="notebook-binding" aria-hidden="true"></span>
+              <span class="notebook-pages" aria-hidden="true"></span>
+              <span class="notebook-copy">
+                <span class="notebook-kicker">MEU DIÁRIO</span>
+                <strong>{{ diary.title || 'Sem título' }}</strong>
+                <span class="notebook-excerpt">{{ diary.excerpt || 'Um espaço para suas palavras.' }}</span>
+                <span class="notebook-open">Abrir caderno <span aria-hidden="true">↗</span></span>
+              </span>
+              <span class="notebook-stamp" aria-hidden="true"><ion-icon name="book-outline"></ion-icon></span>
+            </button>
+          </article>
 
-    <ion-button size="small" fill="clear" (click)="editor.chain().focus().toggleHeading({ level: 1 }).run()" [color]="editor.isActive('heading', { level: 1 }) ? 'primary' : 'medium'">
-      H1
-    </ion-button>
+          <article class="roadmap-node add-node">
+            <span class="path-dot add-dot" aria-hidden="true"><ion-icon name="add-outline"></ion-icon></span>
+            <button class="add-notebook" type="button" (click)="addDiary()">
+              <span class="add-mark"><ion-icon name="add-outline"></ion-icon></span>
+              <span class="add-copy">
+                <strong>Começar outro diário</strong>
+                <small>Um novo espaço para o que vier.</small>
+              </span>
+            </button>
+          </article>
+        </div>
+      </section>
+
+      <footer class="roadmap-note">
+        <span class="note-sparkle">✳</span>
+        <span>Não precisa escrever muito. Só precisa ser seu.</span>
+      </footer>
+    </ng-container>
+
+    <ng-template #writingView>
+      <section class="writing-shell" *ngIf="selectedDiary as diary">
+        <header class="writing-topbar">
+          <button class="back-button" type="button" (click)="returnToRoadmap()">
+            <ion-icon name="arrow-back-outline"></ion-icon>
+            <span>Todos os diários</span>
+          </button>
+          <span class="save-indicator"><ion-icon name="checkmark-circle-outline"></ion-icon>{{ saveLabel() }}</span>
+        </header>
+
+        <article class="writing-paper">
+          <div class="writing-meta">
+            <span class="writing-date">{{ formattedDate(diary.date) }}</span>
+            <span class="local-badge">RASCUNHO LOCAL</span>
+          </div>
+
+          <input class="diary-title-input" type="text" maxlength="100"
+                 [ngModel]="diary.title" (ngModelChange)="updateTitle($event)"
+                 aria-label="Título do diário" placeholder="Dê um título para este momento">
+
+          <div class="editor-toolbar" *ngIf="editor as activeEditor" aria-label="Formatação do texto">
+            <button type="button" aria-label="Negrito" title="Negrito"
+                    [class.toolbar-active]="activeEditor.isActive('bold')" (click)="toggleBold()"><strong>B</strong></button>
+            <button type="button" aria-label="Itálico" title="Itálico"
+                    [class.toolbar-active]="activeEditor.isActive('italic')" (click)="toggleItalic()"><em>I</em></button>
+            <button type="button" aria-label="Título" title="Subtítulo"
+                    [class.toolbar-active]="activeEditor.isActive('heading', { level: 2 })" (click)="toggleHeading()"><span class="heading-tool">H₂</span></button>
+            <span class="toolbar-divider"></span>
+            <button type="button" aria-label="Lista" title="Lista com marcadores"
+                    [class.toolbar-active]="activeEditor.isActive('bulletList')" (click)="toggleBulletList()">
+              <ion-icon name="list-outline"></ion-icon>
+            </button>
+            <button type="button" aria-label="Citação" title="Citação"
+                    [class.toolbar-active]="activeEditor.isActive('blockquote')" (click)="toggleBlockquote()">
+              <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+            </button>
+          </div>
+
+          <div class="editor-surface" *ngIf="editor as activeEditor">
+            <tiptap-editor [editor]="activeEditor"></tiptap-editor>
+          </div>
+
+          <div class="writing-footer">
+            <span>Escreva no seu tempo.</span>
+            <span><ion-icon name="book-outline"></ion-icon> Guardado neste dispositivo</span>
+          </div>
+        </article>
+      </section>
+    </ng-template>
   </div>
-
-  <!-- Área do Editor TipTap -->
-  <div class="editor-container">
-    <tiptap-editor [editor]="editor"></tiptap-editor>
-  </div>
-
 </ion-content>
