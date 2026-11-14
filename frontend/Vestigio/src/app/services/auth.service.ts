@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, finalize } from 'rxjs';
+import { Observable, finalize, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +8,7 @@ import { Observable, tap, finalize } from 'rxjs';
 export class AuthService {
 
   // Endereço da API Laravel.
-  private apiUrl = 'http://localhost:8000/api';
+  readonly apiUrl = 'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient) {}
 
@@ -27,12 +27,18 @@ export class AuthService {
 
   // Recupera o token armazenado.
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return typeof localStorage === 'undefined' ? null : localStorage.getItem('token');
   }
 
   // Verifica se existe um token armazenado.
   isLoggedIn(): boolean {
     return !!this.getToken();
+  }
+
+  clearToken(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('token');
+    }
   }
 
   // Solicita os dados do usuário autenticado.
@@ -47,7 +53,7 @@ export class AuthService {
 
       // Remove o token mesmo se a requisição falhar.
       finalize(() => {
-        localStorage.removeItem('token');
+        this.clearToken();
       })
 
     );

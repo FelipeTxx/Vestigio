@@ -6,7 +6,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-    <ion-row *ngIf="log_in" style="margin-top: 20px;" class="ion-justify-content-center">
+    <ion-row *ngIf="sign_in" style="margin-top: 20px;" class="ion-justify-content-center">
       <ion-col size="4" class="standart-box ion-justify-content-center">
         <ion-row class="ion-text-center">
           <ion-col size="12">
@@ -30,16 +30,16 @@
         </ion-row>
         <ion-row class="ion-text-center">
           <ion-col size="12">
-            <ion-button (click)="store()" fill="outline">Cadastrar</ion-button>
+            <ion-button (click)="store(); sign_in = false; log_in = true;" fill="outline">Cadastrar</ion-button>
           </ion-col>
           <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = true; log_in = false;">não tem uma conta? Cadastrar-se!</a>
+            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = false; log_in = true;">não tem uma conta? Cadastrar-se!</a>
           </ion-col>
         </ion-row>
       </ion-col>
   </ion-row>
-    <ion-row *ngIf="sign_in" style="margin-top: 20px;" class="ion-justify-content-center">
-      <ion-col size="5" class="standart-box ion-justify-content-center">
+    <ion-row *ngIf="log_in" style="margin-top: 20px;" class="ion-justify-content-center">
+      <ion-col size="4" class="standart-box ion-justify-content-center">
         <ion-row class="ion-text-center">
           <ion-col size="12">
             Login
@@ -60,7 +60,7 @@
             <ion-button (click)="login()" fill="outline">Logar</ion-button>
           </ion-col>
           <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = false; log_in = true;">Já tem uma conta? Entre!</a>
+            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = true; log_in = false;">Já tem uma conta? Entre!</a>
           </ion-col>
         </ion-row>
       </ion-col>

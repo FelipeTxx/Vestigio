@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -7,7 +8,4 @@ import { Component } from '@angular/core';
   standalone: false,
 })
 export class HomePage {
-
-  constructor() {}
-
 }

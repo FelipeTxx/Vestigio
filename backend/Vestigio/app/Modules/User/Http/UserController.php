@@ -3,12 +3,11 @@
 namespace App\Modules\User\Http;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\StoreUserJob;
 use App\Modules\User\User;
 use Hash;
 use Illuminate\Http\Request;
 use App\Modules\User\UserService;
-use Illuminate\Validation\ValidationException;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class UserController extends Controller
 {
@@ -27,12 +26,10 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $dados = $request->validate([
-            'email' => 'required',
-            'password' => 'required',
-            'name' => 'required'
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'name' => 'required|string|max:255'
         ]);
-        
-        StoreUserJob::dispatch($dados);
 
         return response()->json(
             $this->service->criar($dados),
@@ -65,8 +62,8 @@ class UserController extends Controller
 
     public function bad_login(Request $request){
         $dados = $request->validate([
-            'email' => 'required',
-            'password' => 'required'
+            'email' => 'required|email',
+            'password' => 'required|string'
         ]); 
 
          return response()->json(
@@ -78,7 +75,7 @@ class UserController extends Controller
     {
         // Recebe e valida os dados enviados pelo Ionic.
         $dados = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required',
             'password' => 'required'
         ]);
 
@@ -93,12 +90,28 @@ class UserController extends Controller
         }
 
         // Gera um token de acesso para o aplicativo.
-        $token = $user->createToken('ionic-app')->plainTextToken;
+        // Define a validade no próprio token e também aplica o limite global do Sanctum.
+        $token = $user->createToken(
+            'ionic-app',
+            ['*'],
+            now()->addMinute()
+        )->plainTextToken;
 
         // Devolve o token e os dados do usuário ao frontend.
         return response()->json([
             'token' => $token,
             'user' => $user
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        $token = $request->user()->currentAccessToken();
+
+        if ($token instanceof PersonalAccessToken) {
+            $token->delete();
+        }
+
+        return response()->json(['message' => 'Logout realizado com sucesso.']);
     }
 }

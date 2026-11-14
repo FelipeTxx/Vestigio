@@ -15,10 +15,6 @@ export class LoginServer {
   }
 
   createUser(user: any) {
-    return this.http.post(`${this.apiUrl}/create-user `, user);
-  }
-
-  bad_login(user: any) {
-    return this.http.post(`${this.apiUrl}/bad-login `, user);
+    return this.http.post(`${this.apiUrl}/create-user`, user);
   }
 }

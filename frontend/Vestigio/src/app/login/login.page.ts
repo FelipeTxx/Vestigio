@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { LoginServer } from './login.server';
 import { HelpingService } from '../services/HelpingServices/helpingService';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 
@@ -29,16 +29,22 @@ export class LoginPage implements OnInit {
     private loginServer: LoginServer,
     private helpingService: HelpingService,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
   ) { 
     this.loginServer = loginServer;
   }
 
   ngOnInit() {
+    this.log_in = true;
+    this.sign_in = false;
+
+    if (this.route.snapshot.queryParamMap.has('sessionExpired')) {
+      this.helpingService.showToast('Sua sessão expirou. Entre novamente.');
+    }
   }
 
   store(){
-    console.log(this.user)
     if (!this.user.name?.trim()) {
       this.helpingService.showToast('Preencha seu nome.');
       return;
@@ -53,11 +59,10 @@ export class LoginPage implements OnInit {
       this.helpingService.showToast('Preencha sua senha.');
       return;
     }
+
     this.loginServer.createUser(this.user).subscribe({
       next: (response: any)=>{
         this.helpingService.showToast("Criado!", "success");
-        this.router.navigate(['/home']);
-        
       },
       error: (err) => {
         this.helpingService.showToast(err.error.message);
@@ -66,48 +71,25 @@ export class LoginPage implements OnInit {
     })
   }
 
-  log(){
-    if (!this.user.email?.trim()) {
-      this.helpingService.showToast('Preencha seu email.');
-      return;
-    }
-
-    if (!this.user.password?.trim()) {
-      this.helpingService.showToast('Preencha sua senha.');
-      return;
-    }
-
-    this.loginServer.bad_login(this.user).subscribe({
-      next: (response: any)=>{
-        this.helpingService.showToast("Acessou!", "success");
-        this.router.navigate(['/home']);
-        
-      },
-      error: (err) => {
-        this.helpingService.showToast(err.error.message);
-      }
-      
-    })
-  }
 
   login() {
+    if (!this.user.email?.trim() || !this.user.password?.trim()) {
+      this.helpingService.showToast('Informe seu email e senha.');
+      return;
+    }
 
     this.authService.login(this.user).subscribe({
 
       next: (response) => {
 
-        // Login realizado e token armazenado.
-        console.log('Usuário autenticado!', response.user);
-
-        // Redireciona para a página principal.
-        this.router.navigate(['/home']);
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+        this.router.navigateByUrl(returnUrl?.startsWith('/') ? returnUrl : '/home');
 
       },
 
       error: (err) => {
 
-        // Exibe o erro retornado pelo Laravel.
-        console.log(err.error.message);
+        this.helpingService.showToast(err.error?.message ?? 'Não foi possível entrar.');
 
       }
 
