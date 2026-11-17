@@ -17,7 +17,12 @@
         <div class="roadmap-track">
           <article class="roadmap-node" *ngFor="let diary of diaries; let i = index"
                    [class.node-left]="i % 2 === 0" [class.node-right]="i % 2 !== 0">
-            <span class="roadmap-date">{{ formattedDate(diary.date) }}</span>
+
+
+
+
+
+
             <span class="path-dot" aria-hidden="true"></span>
             <button class="notebook-card" [ngClass]="coverClass(i)" type="button"
                     (click)="openDiary(diary)" [attr.aria-label]="'Abrir o diário ' + diary.title">
@@ -25,8 +30,9 @@
               <span class="notebook-pages" aria-hidden="true"></span>
               <span class="notebook-copy">
                 <span class="notebook-kicker">MEU DIÁRIO</span>
+                <span class="notebook-date" *ngIf="diary.created_at">{{ formattedDate(diary.created_at) }}</span>
                 <strong>{{ diary.title || 'Sem título' }}</strong>
-                <span class="notebook-excerpt">{{ diary.excerpt || 'Um espaço para suas palavras.' }}</span>
+
                 <span class="notebook-open">Abrir caderno <span aria-hidden="true">↗</span></span>
               </span>
               <span class="notebook-stamp" aria-hidden="true"><ion-icon name="book-outline"></ion-icon></span>
@@ -59,13 +65,18 @@
             <ion-icon name="arrow-back-outline"></ion-icon>
             <span>Todos os diários</span>
           </button>
-          <span class="save-indicator"><ion-icon name="checkmark-circle-outline"></ion-icon>{{ saveLabel() }}</span>
+          <button class="back-button delete-button" type="button"
+                  (click)="deleteSelectedDiary()" [disabled]="selectedDiaryId === null"
+                  aria-label="Excluir diário" title="Excluir diário">
+            <ion-icon name="trash-outline"></ion-icon>
+            <span>Excluir</span>
+          </button>
+          <span class="save-indicator">{{ saveLabel }}</span>
         </header>
 
         <article class="writing-paper">
           <div class="writing-meta">
-            <span class="writing-date">{{ formattedDate(diary.date) }}</span>
-            <span class="local-badge">RASCUNHO LOCAL</span>
+            <span class="local-badge">PRÉVIA</span>
           </div>
 
           <input class="diary-title-input" type="text" maxlength="100"
@@ -96,7 +107,7 @@
 
           <div class="writing-footer">
             <span>Escreva no seu tempo.</span>
-            <span><ion-icon name="book-outline"></ion-icon> Guardado neste dispositivo</span>
+            <span>As alterações não ficam salvas.</span>
           </div>
         </article>
       </section>

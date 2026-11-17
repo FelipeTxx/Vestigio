@@ -9,3 +9,6 @@ Route::middleware('auth:sanctum')->get('user/show/{id}', function ($id) {
 
 
 require_once app_path('Modules/User/Routes/api.php');
+
+
+require_once app_path('Modules/Diario/Routes/api.php');

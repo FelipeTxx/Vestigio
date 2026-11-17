@@ -415,6 +415,20 @@ ion-content.diary-content {
   background: rgba(255, 255, 255, 0.63);
 }
 
+.delete-button {
+  color: #a45f59;
+}
+
+.delete-button:hover:not(:disabled) {
+  color: #873f39;
+  background: rgba(164, 95, 89, 0.09);
+}
+
+.delete-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .save-indicator {
   display: inline-flex;
   align-items: center;

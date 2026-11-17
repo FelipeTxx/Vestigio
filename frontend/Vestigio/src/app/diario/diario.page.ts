@@ -1,23 +1,28 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { IonContent } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   addOutline,
   arrowBackOutline,
   bookOutline,
   chatbubbleEllipsesOutline,
-  checkmarkCircleOutline,
   listOutline,
-  
+  trashOutline,
 } from 'ionicons/icons';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
+import { DiarioService } from './diario.service';
+import { HelpingService } from '../services/HelpingServices/helpingService';
+import { AuthService } from '../services/auth.service';
+import { Subject, debounceTime, switchMap } from 'rxjs';
 
-interface DiaryEntry {
-  id: string;
+export interface DiaryEntry {
+  id?: number;
+  user_id: any;
   title: string;
-  date: string;
-  excerpt: string;
   content: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 @Component({
@@ -26,80 +31,136 @@ interface DiaryEntry {
   standalone: false,
 })
 export class DiarioPage implements OnInit, OnDestroy {
-  private readonly storageKey = 'vestigio.diaries.v1';
-  readonly saveLabel = signal('Salvo neste dispositivo');
+  readonly saveLabel = 'Prévia sem salvamento';
 
   diaries: DiaryEntry[] = [];
+  diary: DiaryEntry = {
+    user_id: 0,
+    title: '',
+    content: ''
+  };
   selectedDiary: DiaryEntry | null = null;
   editor: Editor | null = null;
   view: 'roadmap' | 'writer' = 'roadmap';
+  @ViewChild(IonContent) private content?: IonContent;
 
   private readonly notebookCovers = ['cover-clay', 'cover-sage', 'cover-lilac', 'cover-sand'];
+  private updateSubject = new Subject<DiaryEntry>();
 
-  constructor() {
+  user: any;
+  recentDiaryId: any;
+
+  constructor(
+    private authService: AuthService, 
+    private diarioService: DiarioService,
+    private helperService: HelpingService,
+    private changeDetector: ChangeDetectorRef
+  ) {
     addIcons({
       addOutline,
       arrowBackOutline,
       bookOutline,
-      checkmarkCircleOutline,
       listOutline,
+      trashOutline,
       chatbubbleEllipsesOutline
     });
+    this.user = this.authService.getCurrentUser();
   }
 
   ngOnInit(): void {
-    this.loadDiaries();
+    this.clearPreviousLocalData();
+
+    this.updateSubject.pipe(
+      debounceTime(1000),
+      switchMap(diary => this.diarioService.update(diary))
+    ).subscribe({
+      next: (response) => {
+        console.log('Diário atualizado:', response);
+      },
+      error: (error) => {
+        console.log(error);
+        this.helperService.showToast(error.message);
+      }
+    });
   }
 
   ngOnDestroy(): void {
+    this.updateSubject.complete();
     this.destroyEditor();
+  }
+
+  ionViewDidEnter(): void {
+    if (this.view === 'roadmap') {
+      requestAnimationFrame(() => void this.content?.scrollToBottom(250));
+    }
+  }
+
+  ionViewWillEnter(): void {
+    this.user = this.authService.getCurrentUser();
+    if (this.user?.id) {
+      this.list();
+      return;
+    }
+
+    this.authService.me().subscribe({
+      next: (user: any) => {
+        this.user = user;
+        this.list();
+      },
+      error: (error: any) => {
+        console.log(error);
+        this.helperService.showToast(error.message);
+      }
+    });
   }
 
   openDiary(diary: DiaryEntry): void {
     this.destroyEditor();
     this.selectedDiary = diary;
     this.view = 'writer';
-    this.saveLabel.set('Salvo neste dispositivo');
-
     this.editor = new Editor({
       extensions: [StarterKit],
       content: diary.content || '<p></p>',
       onUpdate: ({ editor }) => {
         if (!this.selectedDiary) return;
-
         this.selectedDiary.content = editor.getHTML();
-        const preview = editor.getText().trim();
-        if (preview) this.selectedDiary.excerpt = preview.slice(0, 88);
-        this.persistDiaries();
+        this.updateSubject.next(this.selectedDiary);
       }
     });
   }
 
   addDiary(): void {
-    const diary: DiaryEntry = {
-      id: this.createId(),
+    this.diary = {
+      user_id: this.user.id, 
       title: 'Novo diário',
-      date: this.today(),
-      excerpt: 'Um espaço novo para suas ideias.',
-      content: '<p></p>'
+      content: '...'
     };
 
-    this.diaries.unshift(diary);
-    this.persistDiaries();
-    this.openDiary(diary);
+    this.diaries.push(this.diary);
+    this.store();
+    this.openDiary(this.diary);
   }
 
   returnToRoadmap(): void {
-    this.persistDiaries();
     this.destroyEditor();
     this.selectedDiary = null;
     this.view = 'roadmap';
   }
 
+  get selectedDiaryId(): number | null {
+    return this.selectedDiary?.id ?? null;
+  }
+
+  deleteSelectedDiary(): void {
+    if (this.selectedDiaryId !== null) {
+      this.destroy(this.selectedDiaryId);
+    }
+  }
+
   updateTitle(title: string): void {
     if (!this.selectedDiary) return;
     this.selectedDiary.title = title;
-    this.persistDiaries();
+    this.updateSubject.next(this.selectedDiary);
   }
 
   coverClass(index: number): string {
@@ -107,8 +168,7 @@ export class DiarioPage implements OnInit, OnDestroy {
   }
 
   formattedDate(date: string): string {
-    const [year, month, day] = date.split('-').map(Number);
-    return new Date(year, month - 1, day, 12).toLocaleDateString('pt-BR', {
+    return new Date(date).toLocaleDateString('pt-BR', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -135,58 +195,11 @@ export class DiarioPage implements OnInit, OnDestroy {
     this.editor?.chain().focus().toggleBlockquote().run();
   }
 
-  private loadDiaries(): void {
+  private clearPreviousLocalData(): void {
+    if (typeof localStorage === 'undefined') return;
     try {
-      const stored = localStorage.getItem(this.storageKey);
-      if (stored) {
-        const parsed = JSON.parse(stored) as DiaryEntry[];
-        this.diaries = Array.isArray(parsed) ? parsed : this.sampleDiaries();
-        return;
-      }
-    } catch {
-      // Dados de exemplo são usados se não houver um rascunho local válido.
-    }
-
-    this.diaries = this.sampleDiaries();
-    this.persistDiaries();
-  }
-
-  private sampleDiaries(): DiaryEntry[] {
-    return [
-      {
-        id: 'sample-1',
-        title: 'Pequenas vitórias',
-        date: this.dateDaysAgo(0),
-        excerpt: 'Hoje consegui desacelerar e perceber o que já está dando certo.',
-        content: '<p>Hoje consegui desacelerar e perceber o que já está dando certo.</p><p>Uma pequena vitória de cada vez também me leva adiante.</p>'
-      },
-      {
-        id: 'sample-2',
-        title: 'Coisas que quero lembrar',
-        date: this.dateDaysAgo(1),
-        excerpt: 'Uma conversa boa, o café quentinho e a luz no fim da tarde.',
-        content: '<p>Uma conversa boa, o café quentinho e a luz no fim da tarde.</p><p>Quero guardar esses instantes simples com carinho.</p>'
-      },
-      {
-        id: 'sample-3',
-        title: 'Uma semana mais leve',
-        date: this.dateDaysAgo(3),
-        excerpt: 'Escolhi fazer uma coisa por vez e deixar espaço para respirar.',
-        content: '<p>Escolhi fazer uma coisa por vez e deixar espaço para respirar.</p>'
-      },
-      {
-        id: 'sample-4',
-        title: 'Novos começos',
-        date: this.dateDaysAgo(5),
-        excerpt: 'Nem todo começo precisa ser grandioso. Basta dar o primeiro passo.',
-        content: '<p>Nem todo começo precisa ser grandioso. Basta dar o primeiro passo.</p>'
-      }
-    ];
-  }
-
-  private persistDiaries(): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(this.diaries));
-    this.saveLabel.set('Salvo neste dispositivo');
+      localStorage.removeItem('vestigio.diaries.v1');
+    } catch {}
   }
 
   private destroyEditor(): void {
@@ -194,23 +207,72 @@ export class DiarioPage implements OnInit, OnDestroy {
     this.editor = null;
   }
 
-  private createId(): string {
-    return globalThis.crypto?.randomUUID?.() ?? `diary-${Date.now()}`;
+  store(): void {
+    if (this.diaries && this.diaries.length > 0) {
+      console.log(this.diary)
+      this.diarioService.create(this.diary).subscribe({
+        next: (response: any) => {
+          console.log("response> ",response);
+          this.recentDiaryId = response.id;
+          Object.assign(this.diary, response);
+          this.changeDetector.markForCheck();
+        },
+        error: (error: any) => {
+          console.log(error);
+          this.helperService.showToast(error.message);
+        }
+      });
+    }
   }
 
-  private today(): string {
-    return this.toDateKey(new Date());
+  update(): void {
+    if (this.diaries && this.diaries.length > 0) {
+      console.log(this.diary)
+      return;
+      this.diarioService.create(this.diary).subscribe({
+        next: (response: any) => {
+          console.log(response);
+        },
+        error: (error: any) => {
+          console.log(error);
+          this.helperService.showToast(error.message);
+        }
+      });
+    }
   }
 
-  private dateDaysAgo(days: number): string {
-    const date = new Date();
-    date.setDate(date.getDate() - days);
-    return this.toDateKey(date);
+  list(){
+    this.diarioService.getByUser(this.user.id).subscribe({
+        next: (response: any) => {
+          const diaries = Array.isArray(response) ? response as DiaryEntry[] : [];
+          this.diaries = [...diaries].sort((a, b) =>
+            new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime()
+          );
+          this.changeDetector.markForCheck();
+          requestAnimationFrame(() => void this.content?.scrollToBottom(250));
+        },
+        error: (error: any) => {
+          console.log(error);
+          this.helperService.showToast(error.message);
+        }
+      });
   }
 
-  private toDateKey(date: Date): string {
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const day = `${date.getDate()}`.padStart(2, '0');
-    return `${date.getFullYear()}-${month}-${day}`;
-  }
+    destroy(id: number){
+      this.diarioService.destroy(id).subscribe({
+          next: (response: any) => {
+            console.log(response);
+            this.diaries = this.diaries.filter(diary => diary.id !== id);
+            if (this.selectedDiary?.id === id) {
+              this.returnToRoadmap();
+            }
+            this.changeDetector.markForCheck();
+          },
+          error: (error: any) => {
+            console.log(error);
+            this.helperService.showToast(error.message);
+          }
+        });
+    }
+
 }
