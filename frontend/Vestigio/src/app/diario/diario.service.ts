@@ -14,8 +14,8 @@ private apiUrl = 'http://127.0.0.1:8000/api';
     return this.http.post(`${this.apiUrl}/diarios`, {diario});
   }
 
-  update(diario: any) {
-    return this.http.put(`${this.apiUrl}/diarios`, {diario});
+  update(diario: any, id: any) {
+    return this.http.put(`${this.apiUrl}/diarios/${id}`, {diario});
   }
 
   getByUser(id: number){

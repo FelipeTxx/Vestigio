@@ -23,7 +23,6 @@ class DiarioService
     {
         $registro = $this->buscar($id);
         $registro->update($dados);
-
         return $registro;
     }
 

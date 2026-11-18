@@ -40,11 +40,13 @@ class DiarioController extends Controller
     public function update(Request $request, int $id)
     {
         $dados = $request->validate([
-           
+           'diario.user_id' => 'required|exists:users,id',
+            'diario.title' => 'required|string',
+            'diario.content' => 'nullable|string',
         ]);
 
         return response()->json(
-            $this->service->atualizar($id, $dados)
+            $this->service->atualizar($id, $dados['diario'])
         );
     }
 

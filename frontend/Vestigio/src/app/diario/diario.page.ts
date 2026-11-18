@@ -14,7 +14,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { DiarioService } from './diario.service';
 import { HelpingService } from '../services/HelpingServices/helpingService';
 import { AuthService } from '../services/auth.service';
-import { Subject, debounceTime, switchMap } from 'rxjs';
+import { Subject, debounceTime } from 'rxjs';
 
 export interface DiaryEntry {
   id?: number;
@@ -45,7 +45,7 @@ export class DiarioPage implements OnInit, OnDestroy {
   @ViewChild(IonContent) private content?: IonContent;
 
   private readonly notebookCovers = ['cover-clay', 'cover-sage', 'cover-lilac', 'cover-sand'];
-  private updateSubject = new Subject<DiaryEntry>();
+  private updateSubject = new Subject<void>();
 
   user: any;
   recentDiaryId: any;
@@ -71,17 +71,8 @@ export class DiarioPage implements OnInit, OnDestroy {
     this.clearPreviousLocalData();
 
     this.updateSubject.pipe(
-      debounceTime(1000),
-      switchMap(diary => this.diarioService.update(diary))
-    ).subscribe({
-      next: (response) => {
-        console.log('Diário atualizado:', response);
-      },
-      error: (error) => {
-        console.log(error);
-        this.helperService.showToast(error.message);
-      }
-    });
+      debounceTime(1000)
+    ).subscribe(() => this.update());
   }
 
   ngOnDestroy(): void {
@@ -124,7 +115,7 @@ export class DiarioPage implements OnInit, OnDestroy {
       onUpdate: ({ editor }) => {
         if (!this.selectedDiary) return;
         this.selectedDiary.content = editor.getHTML();
-        this.updateSubject.next(this.selectedDiary);
+        this.updateSubject.next();
       }
     });
   }
@@ -160,7 +151,7 @@ export class DiarioPage implements OnInit, OnDestroy {
   updateTitle(title: string): void {
     if (!this.selectedDiary) return;
     this.selectedDiary.title = title;
-    this.updateSubject.next(this.selectedDiary);
+    this.updateSubject.next();
   }
 
   coverClass(index: number): string {
@@ -227,9 +218,15 @@ export class DiarioPage implements OnInit, OnDestroy {
 
   update(): void {
     if (this.diaries && this.diaries.length > 0) {
-      console.log(this.diary)
-      return;
-      this.diarioService.create(this.diary).subscribe({
+
+      let toUpdate = {
+        title: this.selectedDiary?.title,
+        content: this.selectedDiary?.content,
+        user_id: this.selectedDiary?.user_id,
+
+      }
+      console.log(toUpdate)
+      this.diarioService.update(toUpdate, this?.selectedDiary?.id).subscribe({
         next: (response: any) => {
           console.log(response);
         },
