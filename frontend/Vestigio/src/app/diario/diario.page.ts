@@ -31,7 +31,7 @@ export interface DiaryEntry {
   standalone: false,
 })
 export class DiarioPage implements OnInit, OnDestroy {
-  readonly saveLabel = 'Prévia sem salvamento';
+  readonly editorCaption = 'PÁGINA DO DIÁRIO';
 
   diaries: DiaryEntry[] = [];
   diary: DiaryEntry = {
@@ -44,7 +44,6 @@ export class DiarioPage implements OnInit, OnDestroy {
   view: 'roadmap' | 'writer' = 'roadmap';
   @ViewChild(IonContent) private content?: IonContent;
 
-  private readonly notebookCovers = ['cover-clay', 'cover-sage', 'cover-lilac', 'cover-sand'];
   private updateSubject = new Subject<void>();
 
   user: any;
@@ -142,6 +141,41 @@ export class DiarioPage implements OnInit, OnDestroy {
     return this.selectedDiary?.id ?? null;
   }
 
+  get selectedPageNumber(): number {
+    if (!this.selectedDiary) return 1;
+    const index = this.diaries.indexOf(this.selectedDiary);
+    return index >= 0 ? index + 1 : this.diaries.length + 1;
+  }
+
+  get currentStreak(): number {
+    if (this.diaries.length < 2) return 0;
+
+    const newestDay = this.calendarDay(this.diaries[this.diaries.length - 1].created_at);
+    const now = new Date();
+    const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86_400_000;
+    if (newestDay === null || today - newestDay < 0 || today - newestDay > 1) return 0;
+
+    let streak = 1;
+    let currentRunDay = newestDay;
+    for (let index = this.diaries.length - 2; index >= 0; index--) {
+      const previousDay = this.calendarDay(this.diaries[index].created_at);
+      if (previousDay === currentRunDay) continue;
+      if (previousDay !== currentRunDay - 1) break;
+      streak++;
+      currentRunDay = previousDay;
+    }
+    return streak;
+  }
+
+  hasConsecutiveNextPage(index: number): boolean {
+    return this.areConsecutiveDays(this.diaries[index]?.created_at, this.diaries[index + 1]?.created_at);
+  }
+
+  isPageInStreak(index: number): boolean {
+    return this.hasConsecutiveNextPage(index)
+      || this.areConsecutiveDays(this.diaries[index - 1]?.created_at, this.diaries[index]?.created_at);
+  }
+
   deleteSelectedDiary(): void {
     if (this.selectedDiaryId !== null) {
       this.destroy(this.selectedDiaryId);
@@ -154,8 +188,30 @@ export class DiarioPage implements OnInit, OnDestroy {
     this.updateSubject.next();
   }
 
-  coverClass(index: number): string {
-    return this.notebookCovers[index % this.notebookCovers.length];
+  previewText(content: string): string {
+    return (content || '')
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/&lt;/gi, '<')
+      .replace(/&gt;/gi, '>')
+      .replace(/&quot;/gi, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private areConsecutiveDays(first?: string, second?: string): boolean {
+    const firstDay = this.calendarDay(first);
+    const secondDay = this.calendarDay(second);
+    return firstDay !== null && secondDay === firstDay + 1;
+  }
+
+  private calendarDay(value?: string): number | null {
+    if (!value) return null;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) / 86_400_000;
   }
 
   formattedDate(date: string): string {
