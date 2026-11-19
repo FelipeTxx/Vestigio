@@ -1,0 +1,91 @@
+<ion-content class="settings-content" [fullscreen]="true">
+  <main class="settings-page">
+    <header class="settings-intro">
+      <span class="eyebrow"><ion-icon name="settings-outline"></ion-icon> SEU ESPAÇO, DO SEU JEITO</span>
+      <h1>Configurações</h1>
+      <p>Cuide das informações da sua conta e deixe o diário confortável para você.</p>
+    </header>
+
+    <form class="settings-form" (submit)="$event.preventDefault()">
+      <section class="settings-card profile-card" aria-labelledby="profile-heading">
+        <div class="section-heading">
+          <span class="section-icon profile-icon"><ion-icon name="person-circle-outline"></ion-icon></span>
+          <div>
+            <h2 id="profile-heading">Seu perfil</h2>
+            <p>As informações que identificam sua conta.</p>
+          </div>
+        </div>
+
+        <div class="profile-photo-row">
+          <div class="avatar-preview" [class.has-image]="imagePreview">
+            <img *ngIf="imagePreview; else initials" [src]="imagePreview" alt="Prévia da imagem de perfil">
+            <ng-template #initials><span>{{ initialsFor(name) }}</span></ng-template>
+          </div>
+          <div class="photo-copy">
+            <strong>Imagem de perfil</strong>
+            <span>Escolha uma foto para personalizar seu espaço.</span>
+            <label class="photo-button" for="profile-image">
+              <ion-icon name="camera-outline"></ion-icon>
+              Escolher imagem
+            </label>
+            <input id="profile-image" class="visually-hidden" type="file" accept="image/*"
+                   (change)="onImageSelected($event)">
+          </div>
+        </div>
+
+        <div class="field-grid">
+          <label class="field-group">
+            <span>Nome</span>
+            <input type="text" name="name" [(ngModel)]="name" autocomplete="name" placeholder="Como podemos chamar você?">
+          </label>
+          <label class="field-group">
+            <span>Email</span>
+            <input type="email" name="email" [(ngModel)]="email" autocomplete="email" placeholder="voce@exemplo.com">
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-card diary-card" aria-labelledby="diary-heading">
+        <div class="section-heading">
+          <span class="section-icon diary-icon"><ion-icon name="book-outline"></ion-icon></span>
+          <div>
+            <h2 id="diary-heading">Conforto de leitura</h2>
+            <p>Ajuste a aparência do texto nas páginas do seu diário.</p>
+          </div>
+        </div>
+
+        <div class="range-setting">
+          <div class="range-label-row">
+            <label for="line-spacing">Espaçamento entre linhas</label>
+            <output>{{ lineSpacing | number:'1.1-1' }}</output>
+          </div>
+          <input id="line-spacing" name="lineSpacing" type="range" min="1" max="2.4" step="0.1"
+                 [(ngModel)]="lineSpacing" (ngModelChange)="updateTypography()">
+          <div class="range-ends"><span>Compacto</span><span>Arejado</span></div>
+        </div>
+
+        <div class="range-setting">
+          <div class="range-label-row">
+            <label for="letter-spacing">Espaçamento entre letras</label>
+            <output>{{ letterSpacing | number:'1.1-1' }} px</output>
+          </div>
+          <input id="letter-spacing" name="letterSpacing" type="range" min="0" max="2" step="0.1"
+                 [(ngModel)]="letterSpacing" (ngModelChange)="updateTypography()">
+          <div class="range-ends"><span>Mais junto</span><span>Mais espaçado</span></div>
+        </div>
+
+        <div class="reading-preview">
+          <span class="preview-label">PRÉVIA DO TEXTO</span>
+          <div class="reading-preview-copy" [style.line-height]="lineSpacing" [style.letter-spacing.px]="letterSpacing">
+            <p>Escrever também é encontrar um ritmo.</p>
+            <p>Ajuste o espaço das palavras para ler com tranquilidade.</p>
+          </div>
+        </div>
+      </section>
+
+      <footer class="settings-footer">
+        <span><ion-icon name="information-circle-outline"></ion-icon> Os ajustes aparecem no diário durante esta sessão.</span>
+      </footer>
+    </form>
+  </main>
+</ion-content>

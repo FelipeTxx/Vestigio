@@ -2,6 +2,8 @@
 
 namespace App\Modules\User;
 
+use App\Modules\UserConfig\UserConfig;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -29,4 +31,9 @@ class User extends Authenticatable
         'password',
         'remember_token'
     ];
+
+    public function userConfig(): HasOne
+    {
+        return $this->hasOne(UserConfig::class);
+    }
 }

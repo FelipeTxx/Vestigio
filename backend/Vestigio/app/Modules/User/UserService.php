@@ -2,9 +2,11 @@
 
 namespace App\Modules\User;
 
+use App\Modules\UserConfig\UserConfig;
 use DB;
 use Hash;
 use Illuminate\Validation\ValidationException;
+
 
 class UserService
 {
@@ -27,7 +29,17 @@ class UserService
                 'email' => ['Esse email já está registrado.']
             ]);
         }
-        return User::create($dados);
+
+        return DB::transaction(function () use ($dados) {
+            $user = User::create($dados);
+
+            $user->userConfig()->create([
+                'line_spacing' => 1.00,
+                'letter_spacing' => 0.00,
+            ]);
+
+            return $user;
+        });
     }
 
     public function buscar(int $id)
@@ -58,5 +70,10 @@ class UserService
                 'error' => ['Email ou Senha incorretos!']
             ]);
         }
+    }
+
+    public function userConfig()
+    {
+        return $this->hasOne(UserConfig::class);
     }
 }

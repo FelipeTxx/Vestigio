@@ -14,7 +14,8 @@ import StarterKit from '@tiptap/starter-kit';
 import { DiarioService } from './diario.service';
 import { HelpingService } from '../services/HelpingServices/helpingService';
 import { AuthService } from '../services/auth.service';
-import { Subject, debounceTime } from 'rxjs';
+import { Subject, Subscription, debounceTime } from 'rxjs';
+import { DiaryTypography, UserConfigService } from '../user-config/user-config.service';
 
 export interface DiaryEntry {
   id?: number;
@@ -45,6 +46,8 @@ export class DiarioPage implements OnInit, OnDestroy {
   @ViewChild(IonContent) private content?: IonContent;
 
   private updateSubject = new Subject<void>();
+  private typographySubscription?: Subscription;
+  typography: DiaryTypography;
 
   user: any;
   recentDiaryId: any;
@@ -53,8 +56,10 @@ export class DiarioPage implements OnInit, OnDestroy {
     private authService: AuthService, 
     private diarioService: DiarioService,
     private helperService: HelpingService,
-    private changeDetector: ChangeDetectorRef
+    private changeDetector: ChangeDetectorRef,
+    private configService: UserConfigService
   ) {
+    this.typography = configService.typography;
     addIcons({
       addOutline,
       arrowBackOutline,
@@ -69,6 +74,11 @@ export class DiarioPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.clearPreviousLocalData();
 
+    this.typographySubscription = this.configService.typography$.subscribe((typography) => {
+      this.typography = typography;
+      this.changeDetector.markForCheck();
+    });
+
     this.updateSubject.pipe(
       debounceTime(1000)
     ).subscribe(() => this.update());
@@ -76,6 +86,7 @@ export class DiarioPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.updateSubject.complete();
+    this.typographySubscription?.unsubscribe();
     this.destroyEditor();
   }
 
