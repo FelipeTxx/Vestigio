@@ -21,14 +21,21 @@ class UserConfigService
 
     public function atualizar(int $id, array $dados)
     {
+        
         $registro = $this->buscar($id);
+        info($dados);
         $registro->update($dados);
-
+        
         return $registro;
     }
 
     public function excluir(int $id)
     {
         return $this->buscar($id)->delete();
+    }
+
+    public function getByUserId(int $id)
+    {
+        return UserConfig::where('user_id', $id)->get();
     }
 }

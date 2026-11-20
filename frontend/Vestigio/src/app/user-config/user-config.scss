@@ -73,6 +73,32 @@ ion-content.settings-content {
   box-shadow: 0 12px 32px rgba(47, 58, 49, 0.055), 0 2px 5px rgba(47, 58, 49, 0.025);
 }
 
+.config-state {
+  color: #718775;
+  font-size: 12px;
+}
+
+.config-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: #9b6159;
+}
+
+.config-error button {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  color: #765546;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  background: #f0e5dc;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .section-heading {
   display: flex;
   align-items: center;
@@ -341,6 +367,37 @@ ion-content.settings-content {
   font-size: 14px;
 }
 
+.save-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 15px;
+  color: #fffefa;
+  font-size: 10px;
+  font-weight: 700;
+  background: #78917a;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.save-button:hover {
+  background: #667f69;
+  transform: translateY(-1px);
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-button ion-icon {
+  font-size: 15px;
+}
+
 @media (max-width: 600px) {
   .settings-page {
     padding: 27px 18px 30px;
@@ -369,6 +426,10 @@ ion-content.settings-content {
   .settings-footer {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .save-button {
+    justify-content: center;
   }
 
   .reading-preview-copy {

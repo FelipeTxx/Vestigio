@@ -1,38 +1,21 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-
-export interface DiaryTypography {
-  lineSpacing: number;
-  letterSpacing: number;
-}
-
-const DEFAULT_TYPOGRAPHY: DiaryTypography = {
-  lineSpacing: 1.5,
-  letterSpacing: 0,
-};
+import { timeout } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UserConfigService {
-  private readonly typographySubject = new BehaviorSubject<DiaryTypography>(DEFAULT_TYPOGRAPHY);
-  readonly typography$ = this.typographySubject.asObservable();
+  private apiUrl = 'http://127.0.0.1:8000/api';
 
-  get typography(): DiaryTypography {
-    return this.typographySubject.value;
+  constructor(private http: HttpClient) {}
+
+  getByUser(id: number){
+    return this.http.get(`${this.apiUrl}/user_configs_by_user/${id}`).pipe(
+      timeout({ first: 10000 }),
+    );
   }
 
-  setTypography(typography: DiaryTypography): void {
-    const normalized = this.normalize(typography);
-    this.typographySubject.next(normalized);
+  update(config: any, id: any) {
+    return this.http.put(`${this.apiUrl}/user_configs/${id}`, config);
   }
 
-  private normalize(typography: DiaryTypography): DiaryTypography {
-    return {
-      lineSpacing: this.clamp(Number(typography.lineSpacing), 1, 2.4, DEFAULT_TYPOGRAPHY.lineSpacing),
-      letterSpacing: this.clamp(Number(typography.letterSpacing), 0, 2, DEFAULT_TYPOGRAPHY.letterSpacing),
-    };
-  }
-
-  private clamp(value: number, min: number, max: number, fallback: number): number {
-    return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : fallback;
-  }
 }

@@ -45,7 +45,16 @@
         </div>
       </section>
 
-      <section class="settings-card diary-card" aria-labelledby="diary-heading">
+      <section class="settings-card config-state" *ngIf="loadingConfig" role="status">
+        Carregando as preferências do diário…
+      </section>
+
+      <section class="settings-card config-state config-error" *ngIf="configLoadError" role="alert">
+        <span>Não foi possível carregar as preferências do diário.</span>
+        <button type="button" (click)="getConfig()">Tentar novamente</button>
+      </section>
+
+      <section class="settings-card diary-card" *ngIf="!loadingConfig && !configLoadError" aria-labelledby="diary-heading">
         <div class="section-heading">
           <span class="section-icon diary-icon"><ion-icon name="book-outline"></ion-icon></span>
           <div>
@@ -60,7 +69,7 @@
             <output>{{ lineSpacing | number:'1.1-1' }}</output>
           </div>
           <input id="line-spacing" name="lineSpacing" type="range" min="1" max="2.4" step="0.1"
-                 [(ngModel)]="lineSpacing" (ngModelChange)="updateTypography()">
+                 [value]="lineSpacing ?? ''" (input)="onLineSpacingInput($event)">
           <div class="range-ends"><span>Compacto</span><span>Arejado</span></div>
         </div>
 
@@ -70,7 +79,7 @@
             <output>{{ letterSpacing | number:'1.1-1' }} px</output>
           </div>
           <input id="letter-spacing" name="letterSpacing" type="range" min="0" max="2" step="0.1"
-                 [(ngModel)]="letterSpacing" (ngModelChange)="updateTypography()">
+                 [value]="letterSpacing ?? ''" (input)="onLetterSpacingInput($event)">
           <div class="range-ends"><span>Mais junto</span><span>Mais espaçado</span></div>
         </div>
 
@@ -85,6 +94,10 @@
 
       <footer class="settings-footer">
         <span><ion-icon name="information-circle-outline"></ion-icon> Os ajustes aparecem no diário durante esta sessão.</span>
+        <button type="button" class="save-button" [disabled]="loadingConfig || configLoadError" (click)="saveConf()">
+          <ion-icon name="checkmark-outline"></ion-icon>
+          Salvar alterações
+        </button>
       </footer>
     </form>
   </main>

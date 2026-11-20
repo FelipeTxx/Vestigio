@@ -37,7 +37,8 @@ class UserConfigController extends Controller
     public function update(Request $request, int $id)
     {
         $dados = $request->validate([
-           
+            'line_spacing' => 'required|numeric|between:1,2.4',
+            'letter_spacing' => 'required|numeric|between:0,2',
         ]);
 
         return response()->json(
@@ -50,6 +51,11 @@ class UserConfigController extends Controller
         $this->service->excluir($id);
 
         return response()->noContent();
+    }
+
+    public function getByUserId(int $id)
+    {
+        return response()->json($this->service->getByUserId($id));
     }
 
 }

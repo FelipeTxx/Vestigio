@@ -107,8 +107,8 @@
           </div>
 
           <div class="editor-surface" *ngIf="editor as activeEditor"
-               [style.line-height]="typography.lineSpacing"
-               [style.letter-spacing.px]="typography.letterSpacing">
+               [style.line-height]="typography?.lineSpacing"
+               [style.letter-spacing.px]="typography?.letterSpacing">
             <tiptap-editor [editor]="activeEditor"></tiptap-editor>
           </div>
 

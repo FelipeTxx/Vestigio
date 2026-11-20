@@ -14,8 +14,13 @@ import StarterKit from '@tiptap/starter-kit';
 import { DiarioService } from './diario.service';
 import { HelpingService } from '../services/HelpingServices/helpingService';
 import { AuthService } from '../services/auth.service';
-import { Subject, Subscription, debounceTime } from 'rxjs';
-import { DiaryTypography, UserConfigService } from '../user-config/user-config.service';
+import { Subject, debounceTime } from 'rxjs';
+import { UserConfigService } from '../user-config/user-config.service';
+
+interface DiaryTypography {
+  lineSpacing: number;
+  letterSpacing: number;
+}
 
 export interface DiaryEntry {
   id?: number;
@@ -46,8 +51,7 @@ export class DiarioPage implements OnInit, OnDestroy {
   @ViewChild(IonContent) private content?: IonContent;
 
   private updateSubject = new Subject<void>();
-  private typographySubscription?: Subscription;
-  typography: DiaryTypography;
+  typography: DiaryTypography | null;
 
   user: any;
   recentDiaryId: any;
@@ -57,9 +61,9 @@ export class DiarioPage implements OnInit, OnDestroy {
     private diarioService: DiarioService,
     private helperService: HelpingService,
     private changeDetector: ChangeDetectorRef,
-    private configService: UserConfigService
+    private userConfigService: UserConfigService
   ) {
-    this.typography = configService.typography;
+    this.typography = null;
     addIcons({
       addOutline,
       arrowBackOutline,
@@ -74,11 +78,6 @@ export class DiarioPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.clearPreviousLocalData();
 
-    this.typographySubscription = this.configService.typography$.subscribe((typography) => {
-      this.typography = typography;
-      this.changeDetector.markForCheck();
-    });
-
     this.updateSubject.pipe(
       debounceTime(1000)
     ).subscribe(() => this.update());
@@ -86,7 +85,6 @@ export class DiarioPage implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.updateSubject.complete();
-    this.typographySubscription?.unsubscribe();
     this.destroyEditor();
   }
 
@@ -99,6 +97,7 @@ export class DiarioPage implements OnInit, OnDestroy {
   ionViewWillEnter(): void {
     this.user = this.authService.getCurrentUser();
     if (this.user?.id) {
+      this.loadTypography(this.user.id);
       this.list();
       return;
     }
@@ -106,12 +105,38 @@ export class DiarioPage implements OnInit, OnDestroy {
     this.authService.me().subscribe({
       next: (user: any) => {
         this.user = user;
+        this.loadTypography(user.id);
         this.list();
       },
       error: (error: any) => {
         console.log(error);
         this.helperService.showToast(error.message);
       }
+    });
+  }
+
+  private loadTypography(userId: number): void {
+    this.userConfigService.getByUser(userId).subscribe({
+      next: (response: any) => {
+        const config = response?.[0];
+        if (!config) {
+          this.typography = null;
+          this.changeDetector.markForCheck();
+          return;
+        }
+
+        const lineSpacing = Number(config.line_spacing);
+        const letterSpacing = Number(config.letter_spacing);
+        this.typography = Number.isFinite(lineSpacing) && Number.isFinite(letterSpacing)
+          ? { lineSpacing, letterSpacing }
+          : null;
+        this.changeDetector.markForCheck();
+      },
+      error: (error: any) => {
+        console.error('Não foi possível carregar a tipografia do diário.', error);
+        this.typography = null;
+        this.changeDetector.markForCheck();
+      },
     });
   }
 
