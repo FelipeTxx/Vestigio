@@ -3,8 +3,8 @@
 namespace App\Modules\Diario\Http;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Modules\Diario\DiarioService;
+use Illuminate\Http\Request;
 
 class DiarioController extends Controller
 {
@@ -12,52 +12,64 @@ class DiarioController extends Controller
         private DiarioService $service
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json($this->service->listar());
+        return response()->json(
+            $this->service->listarPorUsuario($request->user()->id)
+        );
+    }
+
+    /**
+     * Compatibilidade temporária com versões antigas do frontend.
+     * O usuário da sessão é sempre usado como escopo; o ID da URL é ignorado.
+     */
+    public function indexByUser(Request $request, int $id)
+    {
+        return $this->index($request);
     }
 
     public function store(Request $request)
     {
-        info($request);
         $dados = $request->validate([
-            'diario.user_id' => 'required|exists:users,id',
-            'diario.title' => 'required|string',
-            'diario.content' => 'nullable|string',
+            'diario.title' => ['required', 'string', 'max:255'],
+            'diario.description' => ['nullable', 'string'],
+            'diario.icon' => ['sometimes', 'string', 'max:80'],
+            'diario.color' => ['sometimes', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ]);
 
-        return response()->json(
-            $this->service->criar($dados['diario']),
-            201
-        );
+        $diario = $this->service->criar([
+            ...$dados['diario'],
+            'user_id' => $request->user()->id,
+        ]);
+
+        return response()->json($diario->loadCount('pages'), 201);
     }
 
-    public function show(int $id)
+    public function show(Request $request, int $id)
     {
-        return response()->json($this->service->buscar($id));
+        return response()->json(
+            $this->service->buscarDoUsuario($id, $request->user()->id)->loadCount('pages')
+        );
     }
 
     public function update(Request $request, int $id)
     {
         $dados = $request->validate([
-           'diario.user_id' => 'required|exists:users,id',
-            'diario.title' => 'required|string',
-            'diario.content' => 'nullable|string',
+            'diario.title' => ['sometimes', 'required', 'string', 'max:255'],
+            'diario.description' => ['sometimes', 'nullable', 'string'],
+            'diario.icon' => ['sometimes', 'string', 'max:80'],
+            'diario.color' => ['sometimes', 'regex:/^#[0-9A-Fa-f]{6}$/'],
         ]);
 
         return response()->json(
-            $this->service->atualizar($id, $dados['diario'])
+            $this->service->atualizar($id, $request->user()->id, $dados['diario'] ?? [])
         );
     }
 
-    public function destroy(int $id)
+    public function destroy(Request $request, int $id)
     {
-        $this->service->excluir($id);
+        $this->service->excluir($id, $request->user()->id);
 
         return response()->noContent();
-    }
-    
-    public function getByUser(int $id){
-        return $this->service->getByUser($id);
     }
 }

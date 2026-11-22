@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular/lazy';
 import { TiptapEditorDirective } from 'ngx-tiptap';
 import { PaginaPage } from './pagina.page';
+import { PaginaRoutingModule } from './pagina-routing.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, TiptapEditorDirective],
+  imports: [CommonModule, FormsModule, IonicModule, TiptapEditorDirective, PaginaRoutingModule],
   declarations: [PaginaPage],
-  exports: [PaginaPage],
 })
 export class PaginaModule {}

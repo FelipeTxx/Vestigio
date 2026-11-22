@@ -1,29 +1,51 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Diary, DiaryInput, DiaryPageEntry, DiaryPageInput } from './diario.models';
 
-@Injectable({
-  providedIn: 'root' // <-- Isso diz ao Angular para disponibilizar o serviço globalmente
-})
+@Injectable({ providedIn: 'root' })
 export class DiarioService {
-
-private apiUrl = 'http://127.0.0.1:8000/api';
+  private readonly apiUrl = 'http://127.0.0.1:8000/api';
 
   constructor(private http: HttpClient) {}
 
-  create(diario: any) {
-    return this.http.post(`${this.apiUrl}/diarios`, {diario});
+  listDiaries(): Observable<Diary[]> {
+    return this.http.get<Diary[]>(`${this.apiUrl}/diarios`);
   }
 
-  update(diario: any, id: any) {
-    return this.http.put(`${this.apiUrl}/diarios/${id}`, {diario});
+  getDiary(id: number): Observable<Diary> {
+    return this.http.get<Diary>(`${this.apiUrl}/diarios/${id}`);
   }
 
-  getByUser(id: number){
-    return this.http.get(`${this.apiUrl}/diarios-by-user/${id}`);
+  createDiary(diary: DiaryInput): Observable<Diary> {
+    return this.http.post<Diary>(`${this.apiUrl}/diarios`, { diario: diary });
   }
 
-  destroy(id: number){
-    return this.http.delete(`${this.apiUrl}/diarios/${id}`);
+  updateDiary(diary: Partial<DiaryInput>, id: number): Observable<Diary> {
+    return this.http.put<Diary>(`${this.apiUrl}/diarios/${id}`, { diario: diary });
   }
 
+  deleteDiary(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/diarios/${id}`);
+  }
+
+  listPages(diaryId: number): Observable<DiaryPageEntry[]> {
+    return this.http.get<DiaryPageEntry[]>(`${this.apiUrl}/diarios/${diaryId}/pages`);
+  }
+
+  getPage(id: number): Observable<DiaryPageEntry> {
+    return this.http.get<DiaryPageEntry>(`${this.apiUrl}/pages/${id}`);
+  }
+
+  createPage(diaryId: number, page: DiaryPageInput): Observable<DiaryPageEntry> {
+    return this.http.post<DiaryPageEntry>(`${this.apiUrl}/diarios/${diaryId}/pages`, { page });
+  }
+
+  updatePage(page: Partial<DiaryPageInput>, id: number): Observable<DiaryPageEntry> {
+    return this.http.put<DiaryPageEntry>(`${this.apiUrl}/pages/${id}`, { page });
+  }
+
+  deletePage(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/pages/${id}`);
+  }
 }

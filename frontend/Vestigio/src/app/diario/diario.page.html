@@ -1,31 +1,51 @@
 <ion-content class="diary-content" [fullscreen]="true">
-  <div class="diary-page" [class.writer-mode]="view === 'writer'">
+  <main class="diary-page">
     <app-diarios-list
-      *ngIf="view === 'roadmap'"
-      [pages]="pageCards"
-      [currentStreak]="currentStreak"
-      (pageSelected)="openDiary($event.diary)"
-      (addPage)="addDiary()">
+      mode="diaries"
+      [diaries]="diaries"
+      (diarySelected)="openDiary($event)"
+      (addDiary)="addDiary()"
+      (editDiary)="editDiary($event)">
     </app-diarios-list>
+  </main>
 
-    <ng-container *ngIf="selectedDiary as diary">
-      <app-diario-pagina
-        [diary]="diary"
-        [editor]="editor"
-        [pageNumber]="selectedPageNumber"
-        [typography]="typography"
-        [caption]="editorCaption"
-        [formattedDate]="diary.created_at ? formattedDate(diary.created_at) : ''"
-        [canDelete]="selectedDiaryId !== null"
-        (returnToPages)="returnToRoadmap()"
-        (deletePage)="deleteSelectedDiary()"
-        (titleChanged)="updateTitle($event)"
-        (bold)="toggleBold()"
-        (italic)="toggleItalic()"
-        (heading)="toggleHeading()"
-        (bulletList)="toggleBulletList()"
-        (blockquote)="toggleBlockquote()">
-      </app-diario-pagina>
-    </ng-container>
+  <div class="diary-dialog-backdrop" *ngIf="showDiaryDialog" (click)="$event.target === $event.currentTarget && closeDiaryDialog()">
+    <section class="diary-dialog" role="dialog" aria-modal="true" aria-labelledby="diary-dialog-title">
+      <button class="dialog-close" type="button" (click)="closeDiaryDialog()" aria-label="Fechar">×</button>
+      <span class="dialog-eyebrow">SEU ESPAÇO DE ESCRITA</span>
+      <h2 id="diary-dialog-title">{{ editingDiary ? 'Editar diário' : 'Criar um diário' }}</h2>
+      <p class="dialog-description">{{ editingDiary ? 'Ajuste o nome e a descrição desta coleção.' : 'Dê um nome para sua nova coleção de páginas.' }}</p>
+
+      <form class="diary-form" (ngSubmit)="saveDiary()">
+        <label for="diary-title">Nome do diário</label>
+        <input id="diary-title" name="diaryTitle" type="text" maxlength="255" required
+               [(ngModel)]="diaryTitle" placeholder="Ex.: Pequenos momentos">
+
+        <label for="diary-description">Descrição <span>opcional</span></label>
+        <textarea id="diary-description" name="diaryDescription" maxlength="1000" rows="4"
+                  [(ngModel)]="diaryDescription" placeholder="O que você quer guardar neste diário?"></textarea>
+
+        <div class="diary-dialog-actions">
+          <button *ngIf="editingDiary" class="dialog-delete" type="button" (click)="requestDiaryDelete()">Excluir diário</button>
+          <span class="dialog-action-spacer" *ngIf="editingDiary"></span>
+          <button class="dialog-cancel" type="button" (click)="closeDiaryDialog()">Cancelar</button>
+          <button class="dialog-save" type="button" [disabled]="savingDiary" (click)="saveDiary()">
+            {{ savingDiary ? 'Salvando…' : (editingDiary ? 'Salvar alterações' : 'Criar diário') }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="diary-dialog-backdrop" *ngIf="pendingDiaryDelete" (click)="$event.target === $event.currentTarget && cancelDiaryDelete()">
+    <section class="diary-dialog confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-diary-title">
+      <span class="dialog-eyebrow danger-eyebrow">EXCLUSÃO PERMANENTE</span>
+      <h2 id="delete-diary-title">Excluir este diário?</h2>
+      <p class="dialog-description">“{{ pendingDiaryDelete.title }}” e todas as páginas dentro dele serão excluídos permanentemente. Esta ação não pode ser desfeita.</p>
+      <div class="diary-dialog-actions">
+        <button class="dialog-cancel" type="button" (click)="cancelDiaryDelete()">Manter diário</button>
+        <button class="dialog-danger" type="button" (click)="confirmDeleteDiary()">Excluir diário e páginas</button>
+      </div>
+    </section>
   </div>
 </ion-content>

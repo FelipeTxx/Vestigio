@@ -1,61 +1,111 @@
-<section class="diarios-view" aria-label="Páginas do diário">
-  <header class="diary-intro">
-    <div class="intro-copy">
-      <span class="eyebrow"><ion-icon name="book-outline"></ion-icon> SEU ESPAÇO DE ESCRITA</span>
-      <h1>Um diário. Muitas páginas.</h1>
-      <p>Guarde aqui os dias, as ideias e as pequenas coisas que merecem ficar.</p>
-    </div>
-    <div class="journal-count" aria-label="Quantidade de páginas">
-      <span>{{ pages.length }}</span>
-      <small>{{ pages.length === 1 ? 'página' : 'páginas' }}</small>
-      <span class="streak-summary" *ngIf="currentStreak > 1" aria-label="Sequência recente de escrita">
-        <span aria-hidden="true">✦</span> {{ currentStreak }} dias seguidos
-      </span>
-    </div>
-  </header>
+<ng-container *ngIf="mode === 'diaries'; else pagesView">
+  <section class="diarios-view" aria-label="Seus diários">
+    <header class="diary-intro">
+      <div class="intro-copy">
+        <span class="eyebrow"><ion-icon name="book-outline"></ion-icon> SEU ESPAÇO DE ESCRITA</span>
+        <h1>Seus diários, suas histórias.</h1>
+        <p>Cada diário guarda um mundo. Escolha por onde quer continuar.</p>
+      </div>
+      <div class="journal-count" aria-label="Quantidade de diários">
+        <span>{{ diaries.length }}</span>
+        <small>{{ diaries.length === 1 ? 'diário' : 'diários' }}</small>
+      </div>
+    </header>
 
-  <section class="roadmap-section" aria-label="Páginas da mais antiga à mais recente">
-    <div class="roadmap-track">
-      <article class="roadmap-node" *ngFor="let page of pages"
-               [class.streak-page]="page.isInStreak">
-        <svg *ngIf="page.hasConsecutiveNextPage" class="streak-bridge" viewBox="0 0 54 100"
-             preserveAspectRatio="none" aria-hidden="true">
-          <path class="streak-bridge-glow" d="M27 0 C4 22, 49 34, 27 51 S5 78, 27 100"></path>
-          <path class="streak-bridge-line" d="M27 0 C4 22, 49 34, 27 51 S5 78, 27 100"></path>
-        </svg>
-        <span class="path-dot" aria-hidden="true"></span>
-        <button class="page-card" type="button" (click)="pageSelected.emit(page)"
-                [attr.aria-label]="'Abrir a página ' + page.pageNumber + ': ' + (page.diary.title || 'Sem título')">
-          <span class="page-card-top">
-            <span class="page-card-number">FOLHA {{ page.pageNumber | number:'2.0-0' }}</span>
-            <span class="page-card-date">
-              <span class="page-streak-mark" *ngIf="page.isInStreak"
-                    title="Você escreveu em dias seguidos" aria-label="Parte de uma sequência de dias">✦</span>
-              <time *ngIf="page.dateLabel">{{ page.dateLabel }}</time>
-            </span>
+    <section class="diary-grid" aria-label="Lista de diários">
+      <article class="diary-card" *ngFor="let diary of diaries"
+               [style.--diary-accent]="diary.color || '#8FAF92'">
+        <button class="diary-card-main" type="button" (click)="diarySelected.emit(diary)"
+                [attr.aria-label]="'Abrir o diário ' + diary.title">
+          <span class="diary-card-top">
+            <span class="diary-icon"><ion-icon [name]="diary.icon || 'book-outline'"></ion-icon></span>
+            <span class="diary-card-count">{{ diary.pages_count || 0 }} {{ diary.pages_count === 1 ? 'página' : 'páginas' }}</span>
           </span>
-          <strong>{{ page.diary.title || 'Página sem título' }}</strong>
-          <span class="page-card-excerpt">{{ page.excerpt || 'Esta página ainda está em branco.' }}</span>
-          <span class="page-card-open">Ler página <span aria-hidden="true">↗</span></span>
-          <span class="page-fold" aria-hidden="true"></span>
+          <strong>{{ diary.title }}</strong>
+          <span class="diary-description">{{ diary.description || 'Um espaço para guardar seus momentos.' }}</span>
+          <span class="diary-card-open">Abrir diário <span aria-hidden="true">↗</span></span>
+        </button>
+        <button class="diary-edit-button" type="button" (click)="$event.stopPropagation(); editDiary.emit(diary)"
+                [attr.aria-label]="'Editar ou excluir ' + diary.title" title="Editar diário">
+          <ion-icon name="create-outline"></ion-icon>
         </button>
       </article>
 
-      <article class="roadmap-node add-node">
-        <span class="path-dot add-dot" aria-hidden="true"><ion-icon name="add-outline"></ion-icon></span>
-        <button class="add-page" type="button" (click)="addPage.emit()">
-          <span class="add-mark"><ion-icon name="add-outline"></ion-icon></span>
-          <span class="add-copy">
-            <strong>Escrever uma nova página</strong>
-            <small>Continue seu diário no seu tempo.</small>
-          </span>
-        </button>
-      </article>
-    </div>
+      <button class="add-diary-card" type="button" (click)="addDiary.emit()">
+        <span class="add-mark"><ion-icon name="add-outline"></ion-icon></span>
+        <span class="add-copy">
+          <strong>Criar um diário</strong>
+          <small>Comece uma nova coleção de páginas.</small>
+        </span>
+      </button>
+    </section>
   </section>
+</ng-container>
 
-  <footer class="roadmap-note">
-    <span class="note-sparkle">✳</span>
-    <span>Um diário inteiro, feito de momentos seus.</span>
-  </footer>
-</section>
+<ng-template #pagesView>
+  <section class="diarios-view pages-view" aria-label="Páginas do diário selecionado">
+    <header class="diary-intro pages-intro">
+      <div class="intro-copy">
+        <button class="diary-back-button" type="button" (click)="backToDiaries.emit()">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          <span>Todos os diários</span>
+        </button>
+        <span class="eyebrow"><ion-icon name="book-outline"></ion-icon> DIÁRIO</span>
+        <h1>{{ selectedDiary?.title || 'Seu diário' }}</h1>
+        <p>{{ selectedDiary?.description || 'Uma coleção de momentos, página após página.' }}</p>
+      </div>
+      <div class="journal-count" aria-label="Quantidade de páginas">
+        <span>{{ pages.length }}</span>
+        <small>{{ pages.length === 1 ? 'página' : 'páginas' }}</small>
+        <span class="streak-summary" *ngIf="currentStreak > 1" aria-label="Sequência recente de escrita">
+          <span aria-hidden="true">✦</span> {{ currentStreak }} dias seguidos
+        </span>
+      </div>
+    </header>
+
+    <section class="roadmap-section" aria-label="Páginas da mais antiga à mais recente">
+      <div class="roadmap-track">
+        <article class="roadmap-node" *ngFor="let page of pages"
+                 [class.streak-page]="page.isInStreak">
+          <svg *ngIf="page.hasConsecutiveNextPage" class="streak-bridge" viewBox="0 0 54 100"
+               preserveAspectRatio="none" aria-hidden="true">
+            <path class="streak-bridge-glow" d="M27 0 C4 22, 49 34, 27 51 S5 78, 27 100"></path>
+            <path class="streak-bridge-line" d="M27 0 C4 22, 49 34, 27 51 S5 78, 27 100"></path>
+          </svg>
+          <span class="path-dot" aria-hidden="true"></span>
+          <button class="page-card" type="button" (click)="pageSelected.emit(page)"
+                  [attr.aria-label]="'Abrir a página ' + page.pageNumber + ': ' + (page.page.title || 'Sem título')">
+            <span class="page-card-top">
+              <span class="page-card-number">FOLHA {{ page.pageNumber | number:'2.0-0' }}</span>
+              <span class="page-card-date">
+                <span class="page-streak-mark" *ngIf="page.isInStreak"
+                      title="Você escreveu em dias seguidos" aria-label="Parte de uma sequência de dias">✦</span>
+                <time *ngIf="page.dateLabel">{{ page.dateLabel }}</time>
+              </span>
+            </span>
+            <strong>{{ page.page.title || 'Página sem título' }}</strong>
+            <span class="page-card-excerpt">{{ page.excerpt || 'Esta página ainda está em branco.' }}</span>
+            <span class="page-card-open">Ler página <span aria-hidden="true">↗</span></span>
+            <span class="page-fold" aria-hidden="true"></span>
+          </button>
+        </article>
+
+        <article class="roadmap-node add-node">
+          <span class="path-dot add-dot" aria-hidden="true"><ion-icon name="add-outline"></ion-icon></span>
+          <button class="add-page" type="button" (click)="addPage.emit()">
+            <span class="add-mark"><ion-icon name="add-outline"></ion-icon></span>
+            <span class="add-copy">
+              <strong>Escrever uma nova página</strong>
+              <small>Continue este diário no seu tempo.</small>
+            </span>
+          </button>
+        </article>
+      </div>
+    </section>
+
+    <footer class="roadmap-note">
+      <span class="note-sparkle">✳</span>
+      <span>Um diário inteiro, feito de momentos seus.</span>
+    </footer>
+  </section>
+</ng-template>

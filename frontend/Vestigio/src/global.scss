@@ -10,9 +10,50 @@
  */
 
 @use "./app/app.component.scss";
-@use "./app/diario/diario.page.scss";
-@use "./app/diario/diarios/diarios.page.scss";
-@use "./app/diario/pagina/pagina.page.scss";
+
+/* Tiptap cria ProseMirror diretamente no DOM; esta classe precisa de CSS global. */
+.diary-prosemirror {
+  display: block;
+  width: 100%;
+  min-height: inherit;
+  box-sizing: border-box;
+  padding: 0;
+  color: #55564f;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+  line-height: inherit;
+  letter-spacing: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  transition: line-height 100ms ease, letter-spacing 100ms ease;
+  background: transparent !important;
+  border: 0 !important;
+  outline: none !important;
+  cursor: text;
+}
+
+.diary-prosemirror p {
+  margin: 0;
+}
+
+.diary-prosemirror h2 {
+  margin: 1.35em 0 0.6em;
+  color: #36363b;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.diary-prosemirror blockquote {
+  margin: 1.2em 0;
+  padding: 3px 0 3px 16px;
+  color: #8a6d60;
+  border-left: 2px solid #c69d85;
+}
+
+.diary-prosemirror ul {
+  padding-left: 24px;
+}
 
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";

@@ -4,36 +4,37 @@ namespace App\Modules\Diario;
 
 class DiarioService
 {
-    public function listar()
+    public function listarPorUsuario(int $userId)
     {
-        return Diario::all();
+        return Diario::query()
+            ->where('user_id', $userId)
+            ->withCount('pages')
+            ->latest()
+            ->get();
     }
 
-    public function criar(array $dados)
+    public function criar(array $dados): Diario
     {
         return Diario::create($dados);
     }
 
-    public function buscar(int $id)
+    public function buscarDoUsuario(int $id, int $userId): Diario
     {
-        return Diario::findOrFail($id);
+        return Diario::query()
+            ->where('user_id', $userId)
+            ->findOrFail($id);
     }
 
-    public function atualizar(int $id, array $dados)
+    public function atualizar(int $id, int $userId, array $dados): Diario
     {
-        $registro = $this->buscar($id);
-        $registro->update($dados);
-        return $registro;
+        $diario = $this->buscarDoUsuario($id, $userId);
+        $diario->update($dados);
+
+        return $diario->refresh()->loadCount('pages');
     }
 
-    public function excluir(int $id)
+    public function excluir(int $id, int $userId): void
     {
-        return $this->buscar($id)->delete();
-    }
-
-    public function getByUser(int $id){
-        $query = Diario::where('user_id', $id)->get();
-        info($query);
-        return $query;
+        $this->buscarDoUsuario($id, $userId)->delete();
     }
 }

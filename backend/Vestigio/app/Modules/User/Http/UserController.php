@@ -105,7 +105,7 @@ class UserController extends Controller
         $token = $user->createToken(
             'ionic-app',
             ['*'],
-            now()->addMinutes(10)
+            now()->addDay()
         )->plainTextToken;
 
         // Devolve o token e os dados do usuário ao frontend.

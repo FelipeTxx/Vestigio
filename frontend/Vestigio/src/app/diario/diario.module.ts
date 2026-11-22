@@ -1,18 +1,18 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular/lazy';
 import { DiarioPageRoutingModule } from './diario-routing.module';
 import { DiarioPage } from './diario.page';
 import { DiariosModule } from './diarios/diarios.module';
-import { PaginaModule } from './pagina/pagina.module';
 
 @NgModule({
   imports: [
     CommonModule,
+    FormsModule,
     IonicModule,
     DiarioPageRoutingModule,
-    DiariosModule,
-    PaginaModule
+    DiariosModule
   ],
   declarations: [DiarioPage]
 })

@@ -1,10 +1,35 @@
-export interface DiaryEntry {
-  id?: number;
-  user_id: any;
+export interface Diary {
+  id: number;
+  user_id: number;
+  title: string;
+  description: string | null;
+  icon: string;
+  color: string;
+  pages_count?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface DiaryInput {
+  title: string;
+  description: string | null;
+  icon: string;
+  color: string;
+}
+
+export interface DiaryPageEntry {
+  id: number;
+  diary_id: number;
+  user_id: number;
   title: string;
   content: string;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface DiaryPageInput {
+  title: string;
+  content: string;
 }
 
 export interface DiaryTypography {
@@ -13,7 +38,7 @@ export interface DiaryTypography {
 }
 
 export interface DiaryPageCard {
-  diary: DiaryEntry;
+  page: DiaryPageEntry;
   pageNumber: number;
   dateLabel: string;
   excerpt: string;

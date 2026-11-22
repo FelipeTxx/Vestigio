@@ -1,5 +1,15 @@
+@use '../diario.page.scss';
+
 .pagina-view {
   width: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 14px 24px 24px;
+}
+
+ion-content.diary-writing-content {
+  --background: #f4f1ec;
+  --padding-bottom: 0;
 }
 
 .writing-shell {
@@ -60,6 +70,10 @@
 
 .writing-paper {
   position: relative;
+  display: flex;
+  min-height: calc(100dvh - 145px);
+  box-sizing: border-box;
+  flex-direction: column;
   padding: clamp(24px, 6vw, 54px) clamp(22px, 7vw, 72px) 24px;
   background:
     linear-gradient(90deg, transparent 43px, rgba(194, 137, 124, 0.18) 43px 44px, transparent 44px),
@@ -115,6 +129,11 @@
   color: #c1bab3;
 }
 
+.diary-title-input:focus {
+  border-bottom-color: #b7c9b8;
+  box-shadow: 0 1px 0 #b7c9b8;
+}
+
 .editor-toolbar {
   display: flex;
   min-height: 43px;
@@ -165,43 +184,34 @@
 }
 
 .editor-surface {
-  min-height: 380px;
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: clamp(180px, calc(100dvh - 590px), 420px);
+  flex: 1;
   padding: 20px 4px 26px;
   color: #4c4a49;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 16px;
+  cursor: text;
 }
 
-.editor-surface .ProseMirror {
-  min-height: 340px;
-  outline: none;
+.editor-surface:not(.has-content)::before {
+  position: absolute;
+  top: 20px;
+  left: 4px;
+  color: #b1b2a8;
+  font-size: 15px;
+  font-style: italic;
+  content: 'Comece a escrever no seu ritmo…';
+  pointer-events: none;
 }
 
-.editor-surface .ProseMirror p {
-  margin: 0;
-}
-
-.editor-surface .ProseMirror h2 {
-  margin: 1.35em 0 0.6em;
-  color: #36363b;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
-  font-weight: 600;
-}
-
-.editor-surface .ProseMirror blockquote {
-  margin: 1.2em 0;
-  padding: 3px 0 3px 16px;
-  color: #8a6d60;
-  border-left: 2px solid #c69d85;
-}
-
-.editor-surface .ProseMirror ul {
-  padding-left: 24px;
-}
-
-.editor-surface .ProseMirror:focus-visible {
-  outline: none;
+.editor-surface tiptap-editor {
+  display: block;
+  width: 100%;
+  min-height: inherit;
+  flex: 1;
 }
 
 .writing-footer {
@@ -221,6 +231,7 @@
   }
 
   .writing-paper {
+    min-height: calc(100dvh - 120px);
     padding: 25px 20px 18px;
     background:
       linear-gradient(90deg, transparent 30px, rgba(194, 137, 124, 0.17) 30px 31px, transparent 31px),
@@ -229,13 +240,15 @@
   }
 
   .editor-surface {
-    min-height: 52vh;
+    min-height: clamp(150px, calc(100dvh - 410px), 330px);
     padding: 18px 2px 24px;
     font-size: 15px;
   }
 
-  .editor-surface .ProseMirror {
-    min-height: 48vh;
+  .editor-surface:not(.has-content)::before {
+    top: 18px;
+    left: 2px;
+    font-size: 14px;
   }
 
   .writing-footer {
@@ -249,5 +262,11 @@
   .back-button,
   .editor-toolbar button {
     transition-duration: 0.01ms;
+  }
+}
+
+@media (max-width: 680px) {
+  .pagina-view {
+    padding: 10px 12px 18px;
   }
 }

@@ -1,0 +1,13 @@
+<ion-content class="diary-content" [fullscreen]="true">
+  <main class="diary-page">
+    <app-diarios-list
+      mode="pages"
+      [pages]="pageCards"
+      [selectedDiary]="diary"
+      [currentStreak]="currentStreak"
+      (pageSelected)="openPage($event)"
+      (addPage)="addPage()"
+      (backToDiaries)="backToDiaries()">
+    </app-diarios-list>
+  </main>
+</ion-content>
