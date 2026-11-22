@@ -43,6 +43,11 @@
             <input type="email" name="email" [(ngModel)]="email" autocomplete="email" placeholder="voce@exemplo.com">
           </label>
         </div>
+        <br>
+        <button type="button" class="save-button" [disabled]="user.name == name && user.email == email" (click)="saveUser()">
+          <ion-icon name="checkmark-outline"></ion-icon>
+          Salvar alterações
+        </button>
       </section>
 
       <section class="settings-card config-state" *ngIf="loadingConfig" role="status">

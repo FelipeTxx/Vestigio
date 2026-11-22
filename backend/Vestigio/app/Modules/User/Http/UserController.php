@@ -8,6 +8,7 @@ use Hash;
 use Illuminate\Http\Request;
 use App\Modules\User\UserService;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -44,12 +45,22 @@ class UserController extends Controller
 
     public function update(Request $request, int $id)
     {
+        $usuario = $request->user();
+
+        // Garante que a rota não altere a conta de outra pessoa.
+        abort_unless((int) $id === (int) $usuario->id, 403);
+
         $dados = $request->validate([
-           
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users', 'email')->ignore($usuario->id),
+            ],
         ]);
 
         return response()->json(
-            $this->service->atualizar($id, $dados)
+            $this->service->atualizar($usuario->id, $dados)
         );
     }
 

@@ -1,14 +1,5 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { IonContent } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import {
-  addOutline,
-  arrowBackOutline,
-  bookOutline,
-  chatbubbleEllipsesOutline,
-  listOutline,
-  trashOutline,
-} from 'ionicons/icons';
 import { Editor } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import { DiarioService } from './diario.service';
@@ -16,20 +7,7 @@ import { HelpingService } from '../services/HelpingServices/helpingService';
 import { AuthService } from '../services/auth.service';
 import { Subject, debounceTime } from 'rxjs';
 import { UserConfigService } from '../user-config/user-config.service';
-
-interface DiaryTypography {
-  lineSpacing: number;
-  letterSpacing: number;
-}
-
-export interface DiaryEntry {
-  id?: number;
-  user_id: any;
-  title: string;
-  content: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import { DiaryEntry, DiaryPageCard, DiaryTypography } from './diario.models';
 
 @Component({
   selector: 'app-diario',
@@ -64,14 +42,6 @@ export class DiarioPage implements OnInit, OnDestroy {
     private userConfigService: UserConfigService
   ) {
     this.typography = null;
-    addIcons({
-      addOutline,
-      arrowBackOutline,
-      bookOutline,
-      listOutline,
-      trashOutline,
-      chatbubbleEllipsesOutline
-    });
     this.user = this.authService.getCurrentUser();
   }
 
@@ -181,6 +151,17 @@ export class DiarioPage implements OnInit, OnDestroy {
     if (!this.selectedDiary) return 1;
     const index = this.diaries.indexOf(this.selectedDiary);
     return index >= 0 ? index + 1 : this.diaries.length + 1;
+  }
+
+  get pageCards(): DiaryPageCard[] {
+    return this.diaries.map((diary, index) => ({
+      diary,
+      pageNumber: index + 1,
+      dateLabel: diary.created_at ? this.formattedDate(diary.created_at) : '',
+      excerpt: this.previewText(diary.content),
+      hasConsecutiveNextPage: this.hasConsecutiveNextPage(index),
+      isInStreak: this.isPageInStreak(index),
+    }));
   }
 
   get currentStreak(): number {

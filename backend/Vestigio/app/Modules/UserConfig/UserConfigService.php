@@ -23,7 +23,7 @@ class UserConfigService
     {
         
         $registro = $this->buscar($id);
-        info($dados);
+
         $registro->update($dados);
         
         return $registro;

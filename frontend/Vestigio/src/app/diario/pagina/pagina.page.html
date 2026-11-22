@@ -1,0 +1,56 @@
+<section class="pagina-view">
+  <div class="writing-shell">
+    <header class="writing-topbar">
+      <button class="back-button" type="button" (click)="returnToPages.emit()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        <span>Todas as páginas</span>
+      </button>
+      <button class="back-button delete-button" type="button" (click)="deletePage.emit()"
+              [disabled]="!canDelete" aria-label="Excluir página" title="Excluir página">
+        <ion-icon name="trash-outline"></ion-icon>
+        <span>Excluir</span>
+      </button>
+      <span class="page-caption">{{ caption }}</span>
+    </header>
+
+    <article class="writing-paper">
+      <div class="writing-meta">
+        <span class="local-badge">FOLHA {{ pageNumber | number:'2.0-0' }}</span>
+        <span class="writing-date" *ngIf="formattedDate">{{ formattedDate }}</span>
+      </div>
+
+      <input class="diary-title-input" type="text" maxlength="100"
+             [ngModel]="diary.title" (ngModelChange)="titleChanged.emit($event)"
+             aria-label="Título da página" placeholder="Dê um título para esta página">
+
+      <div class="editor-toolbar" *ngIf="editor as activeEditor" aria-label="Formatação do texto">
+        <button type="button" aria-label="Negrito" title="Negrito"
+                [class.toolbar-active]="activeEditor.isActive('bold')" (click)="bold.emit()"><strong>B</strong></button>
+        <button type="button" aria-label="Itálico" title="Itálico"
+                [class.toolbar-active]="activeEditor.isActive('italic')" (click)="italic.emit()"><em>I</em></button>
+        <button type="button" aria-label="Título" title="Subtítulo"
+                [class.toolbar-active]="activeEditor.isActive('heading', { level: 2 })" (click)="heading.emit()"><span class="heading-tool">H₂</span></button>
+        <span class="toolbar-divider"></span>
+        <button type="button" aria-label="Lista" title="Lista com marcadores"
+                [class.toolbar-active]="activeEditor.isActive('bulletList')" (click)="bulletList.emit()">
+          <ion-icon name="list-outline"></ion-icon>
+        </button>
+        <button type="button" aria-label="Citação" title="Citação"
+                [class.toolbar-active]="activeEditor.isActive('blockquote')" (click)="blockquote.emit()">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+        </button>
+      </div>
+
+      <div class="editor-surface" *ngIf="editor as activeEditor"
+           [style.line-height]="typography?.lineSpacing"
+           [style.letter-spacing.px]="typography?.letterSpacing">
+        <tiptap-editor [editor]="activeEditor"></tiptap-editor>
+      </div>
+
+      <div class="writing-footer">
+        <span>Uma página de cada vez.</span>
+        <span>Este espaço é todo seu.</span>
+      </div>
+    </article>
+  </div>
+</section>

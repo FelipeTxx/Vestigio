@@ -11,6 +11,8 @@
 
 @use "./app/app.component.scss";
 @use "./app/diario/diario.page.scss";
+@use "./app/diario/diarios/diarios.page.scss";
+@use "./app/diario/pagina/pagina.page.scss";
 
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/angular/css/core.css";

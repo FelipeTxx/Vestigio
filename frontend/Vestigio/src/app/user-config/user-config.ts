@@ -58,6 +58,7 @@ export class UserConfig {
   
   ionViewWillEnter() {
     this.getConfig();
+    this.getUserDetails();
   }
   initialsFor(name: string): string {
     const initials = name.trim().split(/\s+/).filter(Boolean).slice(0, 2);
@@ -148,6 +149,24 @@ export class UserConfig {
         }
         
       );
+  }
+
+  getUserDetails(){
+    if(this.user){
+      this.name = this.user.name;
+      this.email = this.user.email;
+    }
+  }
+  
+  saveUser(){
+    this.userConfigService.updateUser(this.user.id, {name: this.name, email: this.email}).subscribe(
+      (response: any)=>{
+        console.log(response);
+      },
+      (error: any)=>{
+        this.helperService.showToast(error.message);
+      }
+    );
   }
 
 }

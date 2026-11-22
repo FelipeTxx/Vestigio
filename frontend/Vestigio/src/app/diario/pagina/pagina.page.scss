@@ -1,0 +1,253 @@
+.pagina-view {
+  width: 100%;
+}
+
+.writing-shell {
+  width: min(810px, 100%);
+  margin: 0 auto;
+}
+
+.writing-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  color: #6c7079;
+  font-size: 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+}
+
+.back-button ion-icon {
+  font-size: 17px;
+}
+
+.back-button:hover {
+  color: #343943;
+  background: rgba(255, 255, 255, 0.63);
+}
+
+.delete-button {
+  color: #a45f59;
+}
+
+.delete-button:hover:not(:disabled) {
+  color: #873f39;
+  background: rgba(164, 95, 89, 0.09);
+}
+
+.delete-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.page-caption {
+  color: #7c8c7f;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.writing-paper {
+  position: relative;
+  padding: clamp(24px, 6vw, 54px) clamp(22px, 7vw, 72px) 24px;
+  background:
+    linear-gradient(90deg, transparent 43px, rgba(194, 137, 124, 0.18) 43px 44px, transparent 44px),
+    #fffefa;
+  border: 1px solid rgba(87, 105, 90, 0.12);
+  border-radius: 7px 16px 14px 7px;
+  box-shadow: 0 18px 44px rgba(47, 58, 49, 0.085), 0 3px 7px rgba(47, 58, 49, 0.035);
+}
+
+.writing-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.writing-date {
+  color: #a39a91;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+}
+
+.local-badge {
+  padding: 5px 8px;
+  color: #617b68;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  background: #eaf0e8;
+  border-radius: 20px;
+}
+
+.diary-title-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 21px;
+  padding: 0 0 16px;
+  color: #354039;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(25px, 4vw, 34px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #e8ece5;
+  outline: 0;
+}
+
+.diary-title-input::placeholder {
+  color: #c1bab3;
+}
+
+.editor-toolbar {
+  display: flex;
+  min-height: 43px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  padding: 4px 7px;
+  background: #f1f3ed;
+  border: 1px solid #e3e8df;
+  border-radius: 11px;
+}
+
+.editor-toolbar button {
+  display: grid;
+  width: 32px;
+  height: 31px;
+  place-items: center;
+  color: #76716d;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 14px;
+  background: transparent;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease;
+}
+
+.editor-toolbar button:hover,
+.editor-toolbar button.toolbar-active {
+  color: #58705e;
+  background: #e1e9df;
+}
+
+.editor-toolbar ion-icon {
+  font-size: 16px;
+}
+
+.heading-tool {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 19px;
+  margin: 0 4px;
+  background: #ddd5cd;
+}
+
+.editor-surface {
+  min-height: 380px;
+  padding: 20px 4px 26px;
+  color: #4c4a49;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+
+.editor-surface .ProseMirror {
+  min-height: 340px;
+  outline: none;
+}
+
+.editor-surface .ProseMirror p {
+  margin: 0;
+}
+
+.editor-surface .ProseMirror h2 {
+  margin: 1.35em 0 0.6em;
+  color: #36363b;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.editor-surface .ProseMirror blockquote {
+  margin: 1.2em 0;
+  padding: 3px 0 3px 16px;
+  color: #8a6d60;
+  border-left: 2px solid #c69d85;
+}
+
+.editor-surface .ProseMirror ul {
+  padding-left: 24px;
+}
+
+.editor-surface .ProseMirror:focus-visible {
+  outline: none;
+}
+
+.writing-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 15px;
+  color: #a19a93;
+  font-size: 10px;
+  border-top: 1px solid #e8ece5;
+}
+
+@media (max-width: 680px) {
+  .writing-topbar {
+    margin-bottom: 12px;
+  }
+
+  .writing-paper {
+    padding: 25px 20px 18px;
+    background:
+      linear-gradient(90deg, transparent 30px, rgba(194, 137, 124, 0.17) 30px 31px, transparent 31px),
+      #fffefa;
+    border-radius: 7px 14px 13px 7px;
+  }
+
+  .editor-surface {
+    min-height: 52vh;
+    padding: 18px 2px 24px;
+    font-size: 15px;
+  }
+
+  .editor-surface .ProseMirror {
+    min-height: 48vh;
+  }
+
+  .writing-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .back-button,
+  .editor-toolbar button {
+    transition-duration: 0.01ms;
+  }
+}

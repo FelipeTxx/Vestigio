@@ -18,4 +18,8 @@ export class UserConfigService {
     return this.http.put(`${this.apiUrl}/user_configs/${id}`, config);
   }
 
+  updateUser(id: any, user: any){
+    return this.http.put(`${this.apiUrl}/users/${id}`, user);
+  }
+
 }
