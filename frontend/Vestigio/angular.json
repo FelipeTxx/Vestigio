@@ -30,6 +30,7 @@
               },
               {
                 "glob": "**/*.svg",
+                "ignore": ["*-outline.svg", "*-sharp.svg"],
                 "input": "node_modules/ionicons/dist/ionicons/svg",
                 "output": "./svg"
               }

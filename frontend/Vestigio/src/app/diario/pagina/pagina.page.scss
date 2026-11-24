@@ -167,6 +167,239 @@ ion-content.diary-writing-content {
   background: #e1e9df;
 }
 
+.habit-actions {
+  display: inline-flex;
+  min-width: 0;
+  max-width: min(360px, calc(100vw - 230px));
+  flex: 0 1 auto;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  margin-left: 5px;
+  padding: 2px 3px 5px 8px;
+  border-left: 1px solid #ddd5cd;
+  scrollbar-color: #bac8b9 transparent;
+  scrollbar-width: thin;
+  touch-action: pan-x;
+}
+
+.habit-actions .habit-action {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 1px solid rgba(36, 44, 37, 0.12);
+  border-radius: 9px;
+  box-shadow: 0 1px 2px rgba(38, 49, 40, 0.08);
+  transition: filter 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+.habit-actions .habit-action:hover {
+  filter: brightness(0.94);
+  box-shadow: 0 2px 5px rgba(38, 49, 40, 0.14);
+  transform: translateY(-1px);
+}
+
+.habit-actions .habit-action ion-icon {
+  color: inherit;
+}
+
+.habit-typing-indicator {
+  display: inline-flex;
+  min-height: 27px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+  margin-left: 5px;
+  padding: 0 9px;
+  color: #68756a;
+  font-size: 10px;
+  white-space: nowrap;
+  background: #fffefa;
+  border: 1px solid #e5e9e1;
+  border-radius: 9px;
+  box-shadow: 0 1px 3px rgba(38, 49, 40, 0.05);
+}
+
+.habit-typing-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border: 1px solid rgba(42, 52, 43, 0.12);
+  border-radius: 50%;
+}
+
+.habit-picker-dialog {
+  width: min(540px, 100%);
+  max-height: min(88dvh, 760px);
+  overflow-y: auto;
+}
+
+.habit-form {
+  display: grid;
+  gap: 9px;
+}
+
+.habit-form > label {
+  margin-top: 7px;
+  color: #657166;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.habit-form > input[type='text'] {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  color: #414a42;
+  font: inherit;
+  font-size: 12px;
+  line-height: 1.6;
+  background: #fbfaf6;
+  border: 1px solid #e7e9e1;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.habit-form > input[type='text']:focus {
+  background: #fffefa;
+  border-color: #9eb49e;
+  box-shadow: 0 0 0 3px rgba(142, 175, 146, 0.16);
+}
+
+.habit-type-select {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 0 13px;
+  color: #414a42;
+  font: inherit;
+  font-size: 12px;
+  background: #fbfaf6;
+  border: 1px solid #e7e9e1;
+  border-radius: 12px;
+  outline: none;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.habit-type-select:focus {
+  background: #fffefa;
+  border-color: #9eb49e;
+  box-shadow: 0 0 0 3px rgba(142, 175, 146, 0.16);
+}
+
+.habit-type-select:disabled {
+  color: #999e95;
+  cursor: wait;
+}
+
+.habit-type-empty {
+  margin: -3px 1px 0;
+  color: #9a7168;
+  font-size: 10px;
+}
+
+.habit-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.habit-icon-choice {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  justify-self: center;
+  color: #708273;
+  background: #f4f5f0;
+  border: 1px solid #e7eae2;
+  border-radius: 13px;
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease, transform 150ms ease;
+}
+
+.habit-icon-choice ion-icon {
+  font-size: 19px;
+}
+
+.habit-icon-choice:hover {
+  color: #526d59;
+  background: #eaf0e8;
+  transform: translateY(-1px);
+}
+
+.habit-icon-choice.selected {
+  color: #4d6a54;
+  background: #e5eee2;
+  border-color: #91ad94;
+  box-shadow: 0 0 0 3px rgba(142, 175, 146, 0.13);
+}
+
+.habit-icon-choice:focus-visible {
+  outline: 3px solid rgba(112, 146, 119, 0.35);
+  outline-offset: 2px;
+}
+
+.habit-color-control {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 11px;
+  padding: 6px 12px 6px 7px;
+  color: #667166;
+  font-size: 11px;
+  font-weight: 650;
+  background: #fbfaf6;
+  border: 1px solid #e7e9e1;
+  border-radius: 12px;
+}
+
+.habit-color-control input[type='color'] {
+  width: 42px;
+  height: 34px;
+  padding: 3px;
+  background: #fffefa;
+  border: 1px solid #e7e9e1;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.habit-color-swatch {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 7px;
+  color: #526455;
+  font: inherit;
+  font-size: 11px;
+  background: #f5f6f1;
+  border: 1px solid #e4e9df;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.habit-color-swatch:hover {
+  background: #edf2eb;
+  border-color: #bdcdbd;
+}
+
+.habit-color-swatch span {
+  width: 28px;
+  height: 28px;
+  background: var(--habit-color, #8FAF92);
+  border: 2px solid #fffefa;
+  border-radius: 9px;
+  box-shadow: 0 0 0 1px rgba(74, 91, 76, .18);
+}
+
+.habit-dialog-backdrop {
+  z-index: 1100;
+}
+
 .editor-toolbar ion-icon {
   font-size: 16px;
 }
@@ -251,6 +484,10 @@ ion-content.diary-writing-content {
     font-size: 14px;
   }
 
+  .habit-icon-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
   .writing-footer {
     align-items: flex-start;
     flex-direction: column;
@@ -269,4 +506,43 @@ ion-content.diary-writing-content {
   .pagina-view {
     padding: 10px 12px 18px;
   }
+}
+.editor-toolbar {
+  flex-wrap: wrap;
+}
+
+.habit-actions {
+  display: inline-flex;
+  min-width: 0;
+  max-width: min(52vw, 360px);
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  margin-left: 6px;
+  padding: 2px 3px 5px 8px;
+  border-left: 1px solid #ddd5cd;
+  scrollbar-width: thin;
+  touch-action: pan-x;
+}
+
+.habit-actions .habit-action {
+  flex: 0 0 34px;
+}
+/* Deixa o botão e o ícone maiores quando o hábito estiver ativo na digitação */
+.habit-actions .habit-action.habit-context-active {
+  position: relative;
+  z-index: 2;
+  border-bottom: 2px solid #c7f0a1;
+  border-radius: 9px 9px 6px 6px;
+  box-shadow: 0 2px 0 rgba(82, 109, 89, 0.16), 0 3px 7px rgba(38, 49, 40, 0.14);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.habit-actions .habit-action.habit-context-active ion-icon {
+  font-size: 20px;
+}
+
+.habit-actions .habit-action.habit-context-active:hover {
+  transform: translateY(-1px) scale(1.02);
 }

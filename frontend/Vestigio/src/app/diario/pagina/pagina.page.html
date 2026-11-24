@@ -40,6 +40,35 @@
                 [class.toolbar-active]="activeEditor.isActive('blockquote')" (click)="toggleBlockquote()">
           <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
         </button>
+        <button
+          type="button"
+          title="Hábitos"
+          [class.toolbar-active]="habitToggle"
+          (click)="toggleHabit()">
+          <ion-icon name="bonfire-outline"></ion-icon>
+        </button>
+
+        <div class="habit-actions" *ngIf="habitToggle">
+          <button
+            *ngFor="let habit of habit_list"
+            type="button"
+            class="habit-action"
+            [attr.aria-label]="habit.name"
+            [title]="habit.name"
+            [class.habit-context-active]="isHabitActive(habit)"
+            [attr.aria-pressed]="isHabitActive(habit)"
+            [style.background-color]="habit.color"
+            [style.color]="habitIconColor(habit.color)"
+            (click)="applyHabit(habit)">
+            <ion-icon [name]="habit.icon"></ion-icon>
+          </button>
+          <button
+            type="button"
+            title="Adicionar Hábito"
+            (click)="addHabit()">
+            <ion-icon name="add-outline"></ion-icon>
+          </button>
+        </div>
       </div>
 
       <div class="editor-surface" *ngIf="editor as activeEditor"
@@ -57,6 +86,57 @@
       </article>
     </div>
   </section>
+
+  <div class="diary-dialog-backdrop habit-dialog-backdrop" *ngIf="habitDialogOpen"
+       (click)="$event.target === $event.currentTarget && closeHabitDialog()">
+    <section class="diary-dialog habit-picker-dialog" role="dialog" aria-modal="true"
+             aria-labelledby="habit-dialog-title">
+      <button class="dialog-close" type="button" (click)="closeHabitDialog()" aria-label="Fechar">×</button>
+      <span class="dialog-eyebrow">ROTINA COM INTENÇÃO</span>
+      <h2 id="habit-dialog-title">Novo hábito</h2>
+      <p class="dialog-description">Escolha um nome, um símbolo e uma cor para representar esse hábito.</p>
+
+      <div class="habit-form">
+        <label for="habit-name">Nome do hábito</label>
+        <input id="habit-name" type="text" maxlength="60" required
+               [(ngModel)]="habitDraft.name" placeholder="Ex.: Caminhar ao ar livre">
+
+        <label for="habit-type">Tipo do hábito</label>
+        <select id="habit-type" class="habit-type-select" [(ngModel)]="habitDraft.habit_type_id"
+                [disabled]="habitTypesLoading || habitTypes.length === 0" required>
+          <option [ngValue]="null" disabled>
+            {{ habitTypesLoading ? 'Carregando tipos…' : 'Selecione um tipo' }}
+          </option>
+          <option *ngFor="let type of habitTypes" [ngValue]="type.id">{{ type.name }}</option>
+        </select>
+        <p class="habit-type-empty" *ngIf="!habitTypesLoading && habitTypes.length === 0">
+          Nenhum tipo de hábito disponível.
+        </p>
+
+        <label>Escolha um ícone</label>
+        <app-icon-choice [(selectedIcon)]="habitDraft.icon"></app-icon-choice>
+
+        <label for="habit-color">Escolha uma cor</label>
+        <div class="habit-color-control">
+          <button class="habit-color-swatch" type="button" (click)="openHabitColorPicker(colorPicker)"
+                  [style.--habit-color]="habitDraft.color" aria-label="Abrir seletor de cor">
+            <span aria-hidden="true"></span>
+            Escolher cor
+          </button>
+          <input #colorPicker id="habit-color" type="color" [value]="habitDraft.color"
+                 (input)="updateHabitColor($event)" aria-label="Cor do hábito">
+          <span>{{ habitDraft.color }}</span>
+        </div>
+      </div>
+
+      <div class="diary-dialog-actions">
+        <button class="dialog-cancel" type="button" (click)="closeHabitDialog()">Cancelar</button>
+        <button class="dialog-save" type="button"
+                [disabled]="!habitDraft.name.trim() || habitDraft.habit_type_id === null || habitTypesLoading"
+                (click)="saveHabitOptions()">Salvar opções</button>
+      </div>
+    </section>
+  </div>
 
   <div class="diary-dialog-backdrop" *ngIf="showDeleteConfirmation"
        (click)="$event.target === $event.currentTarget && cancelDeletePage()">

@@ -1,0 +1,37 @@
+<button class="icon-choice-trigger" type="button" (click)="openPicker()" [attr.aria-label]="label">
+  <img [src]="iconSource(selectedIcon)" [alt]="" aria-hidden="true">
+  <span>{{ label }}</span>
+  <code>{{ selectedIcon }}</code>
+</button>
+
+<div class="icon-choice-backdrop" *ngIf="isOpen" (click)="$event.target === $event.currentTarget && closePicker()"
+     (keydown.escape)="closePicker()">
+  <section class="icon-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="icon-choice-title">
+    <header class="icon-choice-header">
+      <div>
+        <span class="icon-choice-eyebrow">BIBLIOTECA DE ÍCONES</span>
+        <h2 id="icon-choice-title">Escolha um ícone</h2>
+        <p>{{ filteredIcons.length | number }} ícones disponíveis</p>
+      </div>
+      <button class="icon-choice-close" type="button" (click)="closePicker()" aria-label="Fechar seletor">×</button>
+    </header>
+
+    <label class="icon-search">
+      <span class="visually-hidden">Pesquisar ícones</span>
+      <span class="search-symbol" aria-hidden="true">⌕</span>
+      <input type="search" [(ngModel)]="searchTerm" placeholder="Pesquisar ícone pelo nome…" autocomplete="off">
+      <button *ngIf="searchTerm" type="button" (click)="searchTerm = ''" aria-label="Limpar pesquisa">×</button>
+    </label>
+
+    <div class="icon-choice-grid" role="listbox" aria-label="Todos os ícones do Ionicons">
+      <button *ngFor="let icon of filteredIcons; trackBy: trackIcon" type="button"
+              class="icon-choice-item" [class.selected]="selectedIcon === icon"
+              role="option" [attr.aria-selected]="selectedIcon === icon"
+              [attr.aria-label]="icon" [title]="icon" (click)="chooseIcon(icon)">
+        <img [src]="iconSource(icon)" [alt]="" aria-hidden="true" loading="lazy">
+        <span>{{ icon }}</span>
+      </button>
+      <p class="icon-empty-state" *ngIf="filteredIcons.length === 0">Nenhum ícone encontrado. Tente outro termo.</p>
+    </div>
+  </section>
+</div>

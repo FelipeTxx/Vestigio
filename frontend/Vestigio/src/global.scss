@@ -51,6 +51,103 @@
   border-left: 2px solid #c69d85;
 }
 
+.diary-prosemirror [data-habit-mark] {
+  position: relative;
+  color: inherit;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--habit-tint) 0 7px,
+    var(--habit-tint-alternate) 7px 14px
+  );
+  border-bottom: 2px solid var(--habit-color);
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.diary-prosemirror [data-habit-popover] {
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 11px);
+  left: 50%;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 7px 6px 10px;
+  color: #465348;
+  font-family: Arial, sans-serif;
+  white-space: nowrap;
+  background: #fffefa;
+  border: 1px solid var(--habit-tint-alternate);
+  border-radius: 11px;
+  box-shadow: 0 7px 20px rgba(38, 49, 40, 0.17), 0 2px 5px rgba(38, 49, 40, 0.07);
+  transform: translateX(-50%);
+  cursor: default;
+}
+
+.diary-prosemirror [data-habit-popover]::after {
+  position: absolute;
+  bottom: -6px;
+  left: calc(50% - 6px);
+  width: 10px;
+  height: 10px;
+  content: '';
+  background: #fffefa;
+  border-right: 1px solid var(--habit-tint-alternate);
+  border-bottom: 1px solid var(--habit-tint-alternate);
+  transform: rotate(45deg);
+}
+
+.diary-prosemirror [data-habit-dot] {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 9px;
+  background: var(--habit-color);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px var(--habit-tint);
+}
+
+.diary-prosemirror [data-habit-label] {
+  max-width: 220px;
+  overflow: hidden;
+  color: #465348;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.diary-prosemirror [data-habit-remove] {
+  position: relative;
+  z-index: 1;
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #657367;
+  font: 17px/1 Arial, sans-serif;
+  background: #f1f3ed;
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 130ms ease, background 130ms ease, transform 130ms ease;
+}
+
+.diary-prosemirror [data-habit-remove]:hover {
+  color: #9a514a;
+  background: #f8eae6;
+  transform: scale(1.06);
+}
+
+.diary-prosemirror [data-habit-mark]:hover [data-habit-popover],
+.diary-prosemirror [data-habit-mark].habit-popover-open [data-habit-popover],
+.diary-prosemirror [data-habit-mark]:focus-within [data-habit-popover] {
+  display: inline-flex;
+}
+
 .diary-prosemirror ul {
   padding-left: 24px;
 }

@@ -15,3 +15,6 @@ require_once app_path('Modules/Diario/Routes/api.php');
 
 
 require_once app_path('Modules/UserConfig/Routes/api.php');
+
+
+require_once app_path('Modules/Habit/Routes/api.php');

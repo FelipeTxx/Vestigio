@@ -3,6 +3,8 @@
 namespace App\Modules\User;
 
 use App\Modules\UserConfig\UserConfig;
+use App\Modules\Habit\HabitType;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -35,5 +37,10 @@ class User extends Authenticatable
     public function userConfig(): HasOne
     {
         return $this->hasOne(UserConfig::class);
+    }
+
+    public function habitTypes(): HasMany
+    {
+        return $this->hasMany(HabitType::class, 'user_id');
     }
 }

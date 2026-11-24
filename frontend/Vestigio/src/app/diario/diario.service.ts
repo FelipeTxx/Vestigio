@@ -48,4 +48,25 @@ export class DiarioService {
   deletePage(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/pages/${id}`);
   }
+
+  getHabitTypes() {
+    return this.http.get(`${this.apiUrl}/habit-types`);
+  }
+
+  postHabits(habit: any){
+    return this.http.post(`${this.apiUrl}/habits`, habit);
+  }
+
+  getHabits() {
+    return this.http.get(`${this.apiUrl}/habits`);
+  }
+
+  findRegisterByUserId(user_id: any) {
+    return this.http.get(`${this.apiUrl}/register-by-user-id/${user_id}`);
+  }
+
+  postHabitsRegister(habitId: any, habit: any){
+    return this.http.post(`${this.apiUrl}/habits/${habitId}/registers`, habit);
+  }
+  
 }

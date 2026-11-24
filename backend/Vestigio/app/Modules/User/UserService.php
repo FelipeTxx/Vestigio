@@ -38,6 +38,11 @@ class UserService
                 'letter_spacing' => 0.00,
             ]);
 
+            $user->habitTypes()->createMany([
+                ['name' => 'Prejudicial', 'is_default' => true],
+                ['name' => 'Benéfico', 'is_default' => true],
+            ]);
+
             return $user;
         });
     }
