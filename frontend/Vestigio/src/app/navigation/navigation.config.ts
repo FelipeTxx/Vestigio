@@ -16,7 +16,7 @@ export interface NavigationSection {
 // Para mudar a categoria ou ordem, mova o item para uma seção abaixo.
 export const GENERATED_MODULES: NavigationItem[] = [
   // <generated-modules>
-  { id: 'user_config', label: 'Configurações', route: '/user-config', icon: 'cog-outline' },
+  { id: 'diario', label: 'Diário', route: '/diario', icon: 'book-outline' }
   // </generated-modules>
 ];
 
