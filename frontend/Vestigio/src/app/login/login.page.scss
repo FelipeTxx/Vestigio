@@ -402,14 +402,13 @@ ion-content.auth-content {
   background: #fcfbf7;
   border: 1px solid #e6e9e1;
   border-radius: 12px;
-  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  transition: border-color 150ms ease;
 }
 
 .input-shell:focus-within {
-  color: #778d79;
-  background: #fffefa;
+  background: #fcfbf7;
   border-color: #a9bea8;
-  box-shadow: 0 0 0 3px rgba(143, 175, 146, 0.14);
+  box-shadow: none;
 }
 
 .input-shell > ion-icon {
@@ -429,6 +428,13 @@ ion-content.auth-content {
   background: transparent;
   border: 0;
   outline: 0;
+  box-shadow: none;
+}
+
+.input-shell input:focus {
+  background: transparent;
+  outline: 0;
+  box-shadow: none;
 }
 
 .input-shell input::placeholder {
