@@ -1,68 +1,145 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title class="ion-text-center" *ngIf="log_in">login</ion-title>
-    <ion-title class="ion-text-center" *ngIf="sign_in">Cadastro</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="auth-content" [fullscreen]="true">
+  <main class="auth-layout">
+    <section class="auth-story" aria-label="Sobre o Vestígio">
+      <div class="story-grain" aria-hidden="true"></div>
+      <a class="auth-brand" routerLink="/login" aria-label="Vestígio, início">
+        <span class="brand-symbol"><ion-icon name="sparkles-outline"></ion-icon></span>
+        <span>vestígio</span>
+      </a>
 
-<ion-content [fullscreen]="true">
-    <ion-row *ngIf="sign_in" style="margin-top: 20px;" class="ion-justify-content-center">
-      <ion-col size="4" class="standart-box ion-justify-content-center">
-        <ion-row class="ion-text-center">
-          <ion-col size="12">
-            Cadastro
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <ion-input label="Nome" type="text" [(ngModel)]="user.name" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <ion-input label="Email" type="email" [(ngModel)]="user.email" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <ion-input label="Senha" type="password" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
-          </ion-col>
-        </ion-row>
-        <ion-row class="ion-text-center">
-          <ion-col size="12">
-            <ion-button (click)="store(); sign_in = false; log_in = true;" fill="outline">Cadastrar</ion-button>
-          </ion-col>
-          <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = false; log_in = true;">Já tem uma conta? Entre!</a>
-          </ion-col>
-        </ion-row>
-      </ion-col>
-  </ion-row>
-    <ion-row *ngIf="log_in" style="margin-top: 20px;" class="ion-justify-content-center">
-      <ion-col size="4" class="standart-box ion-justify-content-center">
-        <ion-row class="ion-text-center">
-          <ion-col size="12">
-            Login
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <ion-input label="Email" [(ngModel)]="user.email" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12">
-            <ion-input label="Senha" type="password" [(ngModel)]="user.password" label-placement="floating" fill="outline" placeholder="Enter text"></ion-input>
-          </ion-col>
-        </ion-row>
-        <ion-row class="ion-text-center">
-          <ion-col size="12">
-            <ion-button (click)="login()" fill="outline">Logar</ion-button>
-          </ion-col>
-          <ion-col size="12">
-            <a style="cursor: pointer; font-size: 12px;" (click)="sign_in = true; log_in = false;">Não tem uma conta? Cadastrar-se!</a>
-          </ion-col>
-        </ion-row>
-      </ion-col>
-  </ion-row>
+      <div class="story-copy">
+        <span class="story-eyebrow">UM ESPAÇO SÓ SEU</span>
+        <h1>As pequenas coisas também contam uma história.</h1>
+        <p>Guarde seus pensamentos, acompanhe seus hábitos e perceba o caminho que está construindo.</p>
+      </div>
+
+      <div class="story-preview" aria-hidden="true">
+        <div class="preview-topline">
+          <span class="preview-mark">✦</span>
+          <span>um instante para você</span>
+          <span class="preview-date">HOJE</span>
+        </div>
+        <div class="preview-title">O que quero<br>guardar de hoje?</div>
+        <div class="preview-lines"><i></i><i></i><i></i></div>
+        <div class="preview-leaf leaf-one"></div>
+        <div class="preview-leaf leaf-two"></div>
+      </div>
+
+      <div class="story-footer">
+        <span class="footer-dot"></span>
+        <span>Um lugar para escrever, crescer e voltar.</span>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-card">
+        <div class="mobile-brand" aria-hidden="true">
+          <span class="brand-symbol"><ion-icon name="sparkles-outline"></ion-icon></span>
+          <span>vestígio</span>
+        </div>
+
+        <div class="form-heading">
+          <span class="form-eyebrow">{{ sign_in ? 'COMECE POR AQUI' : 'BEM-VINDO DE VOLTA' }}</span>
+          <h2>{{ sign_in ? 'Crie seu espaço.' : 'Que bom ter você.' }}</h2>
+          <p>{{ sign_in ? 'Uma conta para tudo o que você quer guardar.' : 'Entre para continuar de onde parou.' }}</p>
+        </div>
+
+        <div class="auth-switch" role="tablist" aria-label="Acesso à conta">
+          <button type="button" role="tab" [attr.aria-selected]="log_in" [class.active]="log_in"
+                  (click)="showLogin()">Entrar</button>
+          <button type="button" role="tab" [attr.aria-selected]="sign_in" [class.active]="sign_in"
+                  (click)="showRegister()">Criar conta</button>
+        </div>
+
+        <div *ngIf="formMessage" class="form-message" [class.message-error]="formMessageType === 'error'"
+             [class.message-success]="formMessageType === 'success'" [class.message-info]="formMessageType === 'info'"
+             role="status" aria-live="polite">
+          <span class="message-symbol" aria-hidden="true">
+            {{ formMessageType === 'error' ? '!' : formMessageType === 'success' ? '✓' : 'i' }}
+          </span>
+          <span>{{ formMessage }}</span>
+        </div>
+
+        <form *ngIf="sign_in" class="auth-form" (ngSubmit)="store()" novalidate>
+          <label class="auth-field">
+            <span>Seu nome</span>
+            <span class="input-shell">
+              <ion-icon name="person-outline" aria-hidden="true"></ion-icon>
+              <input name="name" type="text" [(ngModel)]="user.name" (ngModelChange)="clearMessage()"
+                     autocomplete="name" maxlength="255" placeholder="Como podemos chamar você?" required>
+            </span>
+          </label>
+
+          <label class="auth-field">
+            <span>E-mail</span>
+            <span class="input-shell">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input name="email" type="email" [(ngModel)]="user.email" (ngModelChange)="clearMessage()"
+                     autocomplete="email" inputmode="email" placeholder="voce@exemplo.com" required>
+            </span>
+          </label>
+
+          <label class="auth-field">
+            <span>Senha <small>mínimo de 8 caracteres</small></span>
+            <span class="input-shell">
+              <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+              <input name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="user.password"
+                     (ngModelChange)="clearMessage()" autocomplete="new-password"
+                     placeholder="Crie uma senha segura" required>
+              <button class="password-toggle" type="button" (click)="showPassword = !showPassword"
+                      [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </span>
+          </label>
+
+          <button class="submit-button" type="submit" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Criando seu espaço…' : 'Criar minha conta' }}</span>
+            <ion-icon *ngIf="!isSubmitting" name="arrow-forward-outline" aria-hidden="true"></ion-icon>
+            <span *ngIf="isSubmitting" class="button-spinner" aria-hidden="true"></span>
+          </button>
+
+          <p class="form-legal">Ao criar sua conta, você poderá guardar seus registros com segurança.</p>
+        </form>
+
+        <form *ngIf="log_in" class="auth-form" (ngSubmit)="login()" novalidate>
+          <label class="auth-field">
+            <span>E-mail</span>
+            <span class="input-shell">
+              <ion-icon name="mail-outline" aria-hidden="true"></ion-icon>
+              <input name="email" type="email" [(ngModel)]="user.email" (ngModelChange)="clearMessage()"
+                     autocomplete="email" inputmode="email" placeholder="voce@exemplo.com" required>
+            </span>
+          </label>
+
+          <label class="auth-field">
+            <span>Senha</span>
+            <span class="input-shell">
+              <ion-icon name="lock-closed-outline" aria-hidden="true"></ion-icon>
+              <input name="password" [type]="showPassword ? 'text' : 'password'" [(ngModel)]="user.password"
+                     (ngModelChange)="clearMessage()" autocomplete="current-password" placeholder="Sua senha" required>
+              <button class="password-toggle" type="button" (click)="showPassword = !showPassword"
+                      [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+                <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+              </button>
+            </span>
+          </label>
+
+          <button class="submit-button" type="submit" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Entrando…' : 'Entrar no meu espaço' }}</span>
+            <ion-icon *ngIf="!isSubmitting" name="arrow-forward-outline" aria-hidden="true"></ion-icon>
+            <span *ngIf="isSubmitting" class="button-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <div class="form-bottom">
+          <span>{{ sign_in ? 'Já tem uma conta?' : 'Ainda não tem um espaço por aqui?' }}</span>
+          <button type="button" (click)="sign_in ? showLogin() : showRegister()">
+            {{ sign_in ? 'Entrar' : 'Criar minha conta' }}
+          </button>
+        </div>
+        <div class="privacy-note"><span aria-hidden="true">✦</span> Seus pensamentos, no seu tempo.</div>
+      </div>
+    </section>
+  </main>
 </ion-content>
