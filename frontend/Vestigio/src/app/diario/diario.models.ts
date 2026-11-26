@@ -45,3 +45,23 @@ export interface DiaryPageCard {
   hasConsecutiveNextPage: boolean;
   isInStreak: boolean;
 }
+
+export interface HabitRegister {
+  id: number;
+  habit_id: number;
+  diary_id: number | null;
+  source_key: string | null;
+  trigger_text: string | null;
+  occurred_at: string;
+  intensity: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HabitRegisterInput {
+  diary_id: number;
+  source_key: string;
+  trigger_text: string;
+  occurred_at: string;
+  intensity: number;
+}

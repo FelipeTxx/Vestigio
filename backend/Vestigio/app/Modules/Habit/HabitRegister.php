@@ -4,6 +4,7 @@ namespace App\Modules\Habit;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Diario\Diario;
 
 class HabitRegister extends Model
 {
@@ -11,6 +12,8 @@ class HabitRegister extends Model
 
     protected $fillable = [
         'habit_id',
+        'diary_id',
+        'source_key',
         'trigger_text',
         'occurred_at',
         'intensity',
@@ -27,5 +30,10 @@ class HabitRegister extends Model
     public function habit(): BelongsTo
     {
         return $this->belongsTo(Habit::class, 'habit_id');
+    }
+
+    public function diary(): BelongsTo
+    {
+        return $this->belongsTo(Diario::class, 'diary_id');
     }
 }

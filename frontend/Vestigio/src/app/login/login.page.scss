@@ -437,6 +437,21 @@ ion-content.auth-content {
   box-shadow: none;
 }
 
+.input-shell input:-webkit-autofill,
+.input-shell input:-webkit-autofill:hover,
+.input-shell input:-webkit-autofill:focus,
+.input-shell input:-webkit-autofill:active {
+  -webkit-text-fill-color: #414940 !important;
+  -webkit-box-shadow: 0 0 0 1000px #fcfbf7 inset !important;
+  box-shadow: 0 0 0 1000px #fcfbf7 inset !important;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.input-shell input:-moz-autofill {
+  color: #414940 !important;
+  box-shadow: 0 0 0 1000px #fcfbf7 inset !important;
+}
+
 .input-shell input::placeholder {
   color: #b2b5ac;
 }

@@ -67,6 +67,11 @@ const HabitHighlight = Mark.create({
         parseHTML: (element: HTMLElement) => element.getAttribute('data-habit-key'),
         renderHTML: (attributes: Record<string, any>) => ({ 'data-habit-key': attributes['habitKey'] }),
       },
+      rawHabitId: {
+        default: null,
+        parseHTML: (element: HTMLElement) => element.getAttribute('data-habit-raw-id'),
+        renderHTML: (attributes: Record<string, any>) => ({ 'data-habit-raw-id': attributes['rawHabitId'] }),
+      },
       habitName: {
         default: '',
         parseHTML: (element: HTMLElement) => element.getAttribute('data-habit-name'),
@@ -128,14 +133,14 @@ export class PaginaPage implements OnDestroy {
   private readonly updateSubject = new Subject<DiaryPageEntry>();
 
   habitToggle: boolean = false;
-  habit_list: { name: string; icon: string; color: string; habit_type_id?: number | null }[] = [
+  habit_list: { id?: number; name: string; icon: string; color: string; habit_type_id?: number | null }[] = [
     
   ];
   habitDialogOpen = false;
   habitTypes: HabitTypeOption[] = [];
   habitTypesLoading = false;
   habitDraft = { name: '', icon: 'sparkles-outline', color: '#8FAF92', habit_type_id: null as number | null };
-  habitSelections: { id: string; habit_name: string; habit_color: string; text: string, rawId: number }[] = [];
+  habitSelections: { id: string; habit_name: string; habit_color: string; text: string; habit_id: number | null }[] = [];
   activeTypingHabit: { key: string; name: string; color: string } | null = null;
   private selectedHabitKey: string | null = null;
   private habitSelectionSequence = 0;
@@ -224,22 +229,6 @@ export class PaginaPage implements OnDestroy {
         this.helperService.showToast(error.message)
       }
     );
-    this.diarioService.findRegisterByUserId(40).subscribe(
-      (response: any)=>{
-        console.log(response);
-        if(response.length > 0){
-          this.habitSelections = response;
-        }
-        else{
-          console.log("ff", response)
-        }
-      },
-      (error: any)=>{
-        this.helperService.showToast(error.message)
-      }
-    );
-
-    
   }
 
   ngOnDestroy(): void {
@@ -291,6 +280,7 @@ export class PaginaPage implements OnDestroy {
     const attributes = {
       habitId: activeId,
       habitKey: activeId,
+      rawHabitId: habit.id ?? null,
       habitName: habit.name,
       habitColor: color,
     };
@@ -405,6 +395,7 @@ export class PaginaPage implements OnDestroy {
         this.changeDetector.markForCheck();
       },
     });
+    this.refreshHabitSelections(this.editor);
   }
 
   private update(page: DiaryPageEntry): void {
@@ -416,27 +407,25 @@ export class PaginaPage implements OnDestroy {
         this.helperService.showToast(error.message);
       },
     });
+
     console.log(this.habitSelections);
-    for(let register of this.habitSelections){
-      let toSave = {
-          habit_id: register.rawId,
-          trigger_text: register.text,
-          occurred_at: new Date().toISOString().split('T')[0],
-          intensity: 3
-      }
-      console.log("FUNFANDO>>", register)
-      console.log(register.rawId)
-      this.diarioService.postHabitsRegister(register.rawId, { register: toSave }).subscribe(
-        (response: any)=>{
-          console.log(response);
+    const diaryId = page.diary_id || this.diaryId;
+    for (const selection of this.habitSelections) {
+      if (!selection.habit_id || !selection.text.trim()) continue;
+
+      this.diarioService.syncHabitRegister(selection.habit_id, {
+        diary_id: diaryId,
+        source_key: selection.id,
+        trigger_text: selection.text.trim(),
+        occurred_at: new Date().toISOString(),
+        intensity: 3,
+      }).subscribe({
+        next: response => console.log('Registro de hábito sincronizado:', response),
+        error: error => {
+        this.helperService.showToast(error.message);
         },
-        (error: any)=>{
-          this.helperService.showToast(error.message)
-        }
-      );
+      });
     }
-    
-    
   }
 
   private loadTypography(userId: number): void {
@@ -499,20 +488,18 @@ export class PaginaPage implements OnDestroy {
       habit_color: string;
       text: string;
       lastPosition: number;
-      rawId: number;
+      habit_id: number | null;
     }>();
 
     editor.state.doc.descendants((node, position) => {
       if (!node.isText) return;
       const mark = node.marks.find(candidate => candidate.type.name === 'habitHighlight');
       if (!mark) return;
-      const rawAttr: string | number = mark.attrs['habitId'] ?? position;
-      const cleanedString: string = String(rawAttr).replace(/\D/g, '') || String(position);
-      const rawId: number = Number(cleanedString);
+      const parsedRawId = Number(mark.attrs['rawHabitId']);
+      const habit_id = Number.isInteger(parsedRawId) && parsedRawId > 0 ? parsedRawId : null;
       const id = String(mark.attrs['habitId'] ?? `habit-at-${position}`);
       const current = selections.get(id);
       const text = node.text ?? '';
-      console.log(rawId)
       if (current) {
         current.text += `${position > current.lastPosition ? ' ' : ''}${text}`;
         current.lastPosition = position + node.nodeSize;
@@ -523,13 +510,12 @@ export class PaginaPage implements OnDestroy {
           habit_color: validHabitColor(String(mark.attrs['habitColor'] ?? '#8FAF92')),
           text,
           lastPosition: position + node.nodeSize,
-          rawId: rawId
+          habit_id,
         });
       }
     });
 
     this.habitSelections = [...selections.values()].map(({ lastPosition: _lastPosition, ...selection }) => selection);
-    console.log(this.habitSelections)
   }
 
   private syncSelectedHabit(editor: Editor): void {
@@ -637,10 +623,7 @@ export class PaginaPage implements OnDestroy {
     this.habitDraft.name = name;
     this.habitDialogOpen = false;
 
-    this.habit_list.push(this.habitDraft);
-    console.log(this.habit_list)
-    let toSave = {
-      user_id: this.page.user_id,
+    const toSave = {
       habit_type_id: this.habitDraft.habit_type_id,
       name: this.habitDraft.name,
       color: this.habitDraft.color,
@@ -648,7 +631,12 @@ export class PaginaPage implements OnDestroy {
     }
     this.diarioService.postHabits({ habit: toSave }).subscribe(
       (response: any)=>{
-        console.log(response);
+        const createdHabit = response?.habit ?? response;
+        if (!createdHabit?.id) {
+          this.helperService.showToast('O hábito foi salvo, mas a resposta não trouxe seu identificador.');
+          return;
+        }
+        this.habit_list = [...this.habit_list, createdHabit];
       },
       (error: any)=>{
         this.helperService.showToast(error.message);

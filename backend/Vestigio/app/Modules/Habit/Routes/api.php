@@ -11,9 +11,9 @@ Route::middleware('auth:sanctum')->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
 
     Route::get('habits/{habit}/registers', [HabitRegisterController::class, 'index']);
-    Route::get('register-by-user-id/{user_id}', [HabitRegisterController::class, 'findRegisterByUserId']);
+    Route::get('habit-registers', [HabitRegisterController::class, 'indexByUser']);
     Route::post('habits/{habit}/registers', [HabitRegisterController::class, 'store']);
+    Route::post('habits/{habit}/registers/sync', [HabitRegisterController::class, 'sync']);
     Route::put('habits/{habit}/registers/{register}', [HabitRegisterController::class, 'update']);
     Route::delete('habits/{habit}/registers/{register}', [HabitRegisterController::class, 'destroy']);
-
 });

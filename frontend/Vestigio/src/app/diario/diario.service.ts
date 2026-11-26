@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Diary, DiaryInput, DiaryPageEntry, DiaryPageInput } from './diario.models';
+import { Diary, DiaryInput, DiaryPageEntry, DiaryPageInput, HabitRegister, HabitRegisterInput } from './diario.models';
 
 @Injectable({ providedIn: 'root' })
 export class DiarioService {
@@ -61,12 +61,18 @@ export class DiarioService {
     return this.http.get(`${this.apiUrl}/habits`);
   }
 
-  findRegisterByUserId(user_id: any) {
-    return this.http.get(`${this.apiUrl}/register-by-user-id/${user_id}`);
+  getHabitRegisters() {
+    return this.http.get<HabitRegister[]>(`${this.apiUrl}/habit-registers`);
   }
 
-  postHabitsRegister(habitId: any, habit: any){
-    return this.http.post(`${this.apiUrl}/habits/${habitId}/registers`, habit);
+  createHabitRegister(habitId: number, register: HabitRegisterInput) {
+    return this.http.post<HabitRegister>(`${this.apiUrl}/habits/${habitId}/registers`, { register });
   }
+
+  syncHabitRegister(habitId: number, register: HabitRegisterInput) {
+    return this.http.post<HabitRegister>(`${this.apiUrl}/habits/${habitId}/registers/sync`, { register });
+  }
+
+
   
 }

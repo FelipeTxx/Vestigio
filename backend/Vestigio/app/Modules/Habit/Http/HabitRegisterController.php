@@ -15,9 +15,15 @@ class HabitRegisterController extends Controller
         return response()->json($this->service->listarDoHabit($habit, $request->user()->id));
     }
 
+    public function indexByUser(Request $request)
+    {
+        return response()->json($this->service->listarDoUsuario($request->user()->id));
+    }
+
     public function store(Request $request, int $habit)
     {
         $dados = $request->validate([
+            'register.diary_id' => ['required', 'integer', 'exists:diaries,id'],
             'register.trigger_text' => ['nullable', 'string'],
             'register.occurred_at' => ['required', 'date'],
             'register.intensity' => ['required', 'integer', 'between:1,5'],
@@ -32,6 +38,7 @@ class HabitRegisterController extends Controller
     public function update(Request $request, int $habit, int $register)
     {
         $dados = $request->validate([
+            'register.diary_id' => ['sometimes', 'required', 'integer', 'exists:diaries,id'],
             'register.trigger_text' => ['sometimes', 'nullable', 'string'],
             'register.occurred_at' => ['sometimes', 'required', 'date'],
             'register.intensity' => ['sometimes', 'required', 'integer', 'between:1,5'],
@@ -42,15 +49,25 @@ class HabitRegisterController extends Controller
         );
     }
 
-    public function findRegisterByUserId(int $user_id) {
-        info($user_id);
-        return $this->service->findRegisterByUserId($user_id);
-    }
-
     public function destroy(Request $request, int $habit, int $register)
     {
         $this->service->excluir($habit, $register, $request->user()->id);
 
         return response()->noContent();
+    }
+
+    public function sync(Request $request, int $habit)
+    {
+        $dados = $request->validate([
+            'register.diary_id' => ['required', 'integer', 'exists:diaries,id'],
+            'register.source_key' => ['required', 'string', 'max:100'],
+            'register.trigger_text' => ['required', 'string'],
+            'register.occurred_at' => ['required', 'date'],
+            'register.intensity' => ['required', 'integer', 'between:1,5'],
+        ]);
+
+        return response()->json(
+            $this->service->sincronizar($habit, $request->user()->id, $dados['register'])
+        );
     }
 }
