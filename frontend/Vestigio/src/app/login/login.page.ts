@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { addIcons } from 'ionicons';
 import {
@@ -42,6 +42,7 @@ export class LoginPage implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
+    private changeDetector: ChangeDetectorRef,
   ) {
     addIcons({
       arrowForwardOutline,
@@ -112,7 +113,7 @@ export class LoginPage implements OnInit {
           ?? error?.error?.errors?.password?.[0];
         this.setMessage(backendFieldMessage ?? 'Não foi possível criar a conta. Confira os dados e tente novamente.', 'error');
       },
-    }).add(() => this.isSubmitting = false);
+    }).add(() => this.finishSubmitting());
   }
 
   login(): void {
@@ -137,16 +138,23 @@ export class LoginPage implements OnInit {
             ?? 'Não foi possível entrar agora. Tente novamente em instantes.';
         this.setMessage(message, 'error');
       },
-    }).add(() => this.isSubmitting = false);
+    }).add(() => this.finishSubmitting());
   }
 
   clearMessage(): void {
     this.formMessage = '';
+    this.changeDetector.markForCheck();
   }
 
   private setMessage(message: string, type: AuthMessageType): void {
     this.formMessage = message;
     this.formMessageType = type;
+    this.changeDetector.markForCheck();
+  }
+
+  private finishSubmitting(): void {
+    this.isSubmitting = false;
+    this.changeDetector.markForCheck();
   }
 
   private isValidEmail(email: string): boolean {

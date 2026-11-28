@@ -27,7 +27,7 @@ import {
 import { Subject, debounceTime, finalize } from 'rxjs';
 import { HelpingService } from '../../services/HelpingServices/helpingService';
 import { UserConfigService } from '../../user-config/user-config.service';
-import { DiaryPageEntry, DiaryTypography } from '../diario.models';
+import { DiaryPageEntry, DiaryTypography, HabitRegisterInput } from '../diario.models';
 import { DiarioService } from '../diario.service';
 
 interface HabitTypeOption {
@@ -140,7 +140,7 @@ export class PaginaPage implements OnDestroy {
   habitTypes: HabitTypeOption[] = [];
   habitTypesLoading = false;
   habitDraft = { name: '', icon: 'sparkles-outline', color: '#8FAF92', habit_type_id: null as number | null };
-  habitSelections: { id: string; habit_name: string; habit_color: string; text: string; habit_id: number | null }[] = [];
+  habitSelections: { habit_name: string; habit_color: string; text: string; habit_id: number | null; trigger_content: HabitRegisterInput['trigger_content'] }[] = [];
   activeTypingHabit: { key: string; name: string; color: string } | null = null;
   private selectedHabitKey: string | null = null;
   private habitSelectionSequence = 0;
@@ -408,24 +408,23 @@ export class PaginaPage implements OnDestroy {
       },
     });
 
-    console.log(this.habitSelections);
     const diaryId = page.diary_id || this.diaryId;
-    for (const selection of this.habitSelections) {
-      if (!selection.habit_id || !selection.text.trim()) continue;
-
-      this.diarioService.syncHabitRegister(selection.habit_id, {
-        diary_id: diaryId,
-        source_key: selection.id,
-        trigger_text: selection.text.trim(),
-        occurred_at: new Date().toISOString(),
+    if (!diaryId || !page.id) return;
+    const registers: HabitRegisterInput[] = this.habitSelections
+      .filter(selection => selection.habit_id && selection.trigger_content.occurrences.length)
+      .map(selection => ({
+        habit_id: selection.habit_id!,
+        trigger_text: selection.text,
+        trigger_content: selection.trigger_content,
         intensity: 3,
-      }).subscribe({
-        next: response => console.log('Registro de hábito sincronizado:', response),
+      }));
+
+    this.diarioService.syncPageHabitRegisters(diaryId, page.id, registers).subscribe({
+        next: () => {},
         error: error => {
         this.helperService.showToast(error.message);
         },
       });
-    }
   }
 
   private loadTypography(userId: number): void {
@@ -482,40 +481,50 @@ export class PaginaPage implements OnDestroy {
   }
 
   private refreshHabitSelections(editor: Editor): void {
-    const selections = new Map<string, {
-      id: string;
+    const selections = new Map<number, {
       habit_name: string;
       habit_color: string;
-      text: string;
-      lastPosition: number;
-      habit_id: number | null;
+      habit_id: number;
+      occurrences: { source_key: string; from: number; to: number }[];
     }>();
 
     editor.state.doc.descendants((node, position) => {
-      if (!node.isText) return;
       const mark = node.marks.find(candidate => candidate.type.name === 'habitHighlight');
       if (!mark) return;
       const parsedRawId = Number(mark.attrs['rawHabitId']);
-      const habit_id = Number.isInteger(parsedRawId) && parsedRawId > 0 ? parsedRawId : null;
-      const id = String(mark.attrs['habitId'] ?? `habit-at-${position}`);
-      const current = selections.get(id);
-      const text = node.text ?? '';
-      if (current) {
-        current.text += `${position > current.lastPosition ? ' ' : ''}${text}`;
-        current.lastPosition = position + node.nodeSize;
-      } else {
-        selections.set(id, {
-          id,
+      if (!Number.isInteger(parsedRawId) || parsedRawId < 1) return;
+      const habit_id = parsedRawId;
+      const sourceKey = String(mark.attrs['habitId'] ?? `habit-at-${position}`);
+      const current = selections.get(habit_id);
+      if (!current) {
+        selections.set(habit_id, {
           habit_name: String(mark.attrs['habitName'] ?? 'Hábito'),
           habit_color: validHabitColor(String(mark.attrs['habitColor'] ?? '#8FAF92')),
-          text,
-          lastPosition: position + node.nodeSize,
           habit_id,
+          occurrences: [{ source_key: sourceKey, from: position, to: position + node.nodeSize }],
         });
+        return;
       }
+      const last = current.occurrences[current.occurrences.length - 1];
+      if (last.source_key === sourceKey && last.to === position) last.to += node.nodeSize;
+      else current.occurrences.push({ source_key: sourceKey, from: position, to: position + node.nodeSize });
     });
 
-    this.habitSelections = [...selections.values()].map(({ lastPosition: _lastPosition, ...selection }) => selection);
+    this.habitSelections = [...selections.values()].map(selection => {
+      const occurrences = selection.occurrences.map((occurrence, index) => ({
+        order: index + 1,
+        ...occurrence,
+        text: editor.state.doc.textBetween(occurrence.from, occurrence.to, '\n').trim(),
+        slice: editor.state.doc.slice(occurrence.from, occurrence.to).toJSON() as Record<string, unknown>,
+      })).filter(occurrence => occurrence.text.length > 0);
+      return {
+        habit_id: selection.habit_id,
+        habit_name: selection.habit_name,
+        habit_color: selection.habit_color,
+        text: occurrences.map(occurrence => occurrence.text).join('\n'),
+        trigger_content: { version: 1 as const, occurrences },
+      };
+    }).filter(selection => selection.trigger_content.occurrences.length > 0);
   }
 
   private syncSelectedHabit(editor: Editor): void {

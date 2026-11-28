@@ -24,8 +24,9 @@ class HabitRegisterController extends Controller
     {
         $dados = $request->validate([
             'register.diary_id' => ['required', 'integer', 'exists:diaries,id'],
-            'register.trigger_text' => ['nullable', 'string'],
-            'register.occurred_at' => ['required', 'date'],
+            'register.page_id' => ['required', 'integer', 'exists:pages,id'],
+            'register.trigger_text' => ['required', 'string'],
+            'register.trigger_content' => ['required', 'array'],
             'register.intensity' => ['required', 'integer', 'between:1,5'],
         ]);
 
@@ -39,8 +40,9 @@ class HabitRegisterController extends Controller
     {
         $dados = $request->validate([
             'register.diary_id' => ['sometimes', 'required', 'integer', 'exists:diaries,id'],
-            'register.trigger_text' => ['sometimes', 'nullable', 'string'],
-            'register.occurred_at' => ['sometimes', 'required', 'date'],
+            'register.page_id' => ['sometimes', 'required', 'integer', 'exists:pages,id'],
+            'register.trigger_text' => ['sometimes', 'required', 'string'],
+            'register.trigger_content' => ['sometimes', 'required', 'array'],
             'register.intensity' => ['sometimes', 'required', 'integer', 'between:1,5'],
         ]);
 
@@ -56,18 +58,26 @@ class HabitRegisterController extends Controller
         return response()->noContent();
     }
 
-    public function sync(Request $request, int $habit)
+    public function syncPage(Request $request, int $diary, int $page)
     {
         $dados = $request->validate([
-            'register.diary_id' => ['required', 'integer', 'exists:diaries,id'],
-            'register.source_key' => ['required', 'string', 'max:100'],
-            'register.trigger_text' => ['required', 'string'],
-            'register.occurred_at' => ['required', 'date'],
-            'register.intensity' => ['required', 'integer', 'between:1,5'],
+            'registers' => ['present', 'array'],
+            'registers.*.habit_id' => ['required', 'integer', 'distinct:strict', 'exists:user_habits,id'],
+            'registers.*.trigger_text' => ['required', 'string'],
+            'registers.*.trigger_content' => ['required', 'array'],
+            'registers.*.trigger_content.version' => ['required', 'integer', 'in:1'],
+            'registers.*.trigger_content.occurrences' => ['required', 'array', 'min:1'],
+            'registers.*.trigger_content.occurrences.*.order' => ['required', 'integer', 'min:1'],
+            'registers.*.trigger_content.occurrences.*.source_key' => ['required', 'string', 'max:100'],
+            'registers.*.trigger_content.occurrences.*.from' => ['required', 'integer', 'min:0'],
+            'registers.*.trigger_content.occurrences.*.to' => ['required', 'integer', 'gt:registers.*.trigger_content.occurrences.*.from'],
+            'registers.*.trigger_content.occurrences.*.text' => ['required', 'string'],
+            'registers.*.trigger_content.occurrences.*.slice' => ['required', 'array'],
+            'registers.*.intensity' => ['sometimes', 'integer', 'between:1,5'],
         ]);
 
         return response()->json(
-            $this->service->sincronizar($habit, $request->user()->id, $dados['register'])
+            $this->service->sincronizarPagina($diary, $page, $request->user()->id, $dados['registers'])
         );
     }
 }

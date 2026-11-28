@@ -69,8 +69,11 @@ export class DiarioService {
     return this.http.post<HabitRegister>(`${this.apiUrl}/habits/${habitId}/registers`, { register });
   }
 
-  syncHabitRegister(habitId: number, register: HabitRegisterInput) {
-    return this.http.post<HabitRegister>(`${this.apiUrl}/habits/${habitId}/registers/sync`, { register });
+  syncPageHabitRegisters(diaryId: number, pageId: number, registers: HabitRegisterInput[]) {
+    return this.http.put<HabitRegister[]>(
+      `${this.apiUrl}/diarios/${diaryId}/pages/${pageId}/habit-registers`,
+      { registers },
+    );
   }
 
 

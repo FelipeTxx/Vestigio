@@ -3,6 +3,9 @@
 namespace App\Modules\Habit;
 
 use App\Modules\Diario\Diario;
+use App\Modules\Diario\Page;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class HabitRegisterService
 {
@@ -12,8 +15,8 @@ class HabitRegisterService
 
         return HabitRegister::query()
             ->where('habit_id', $habitId)
-            ->with('diary')
-            ->latest('occurred_at')
+            ->with(['diary', 'page'])
+            ->latest('updated_at')
             ->get();
     }
 
@@ -21,61 +24,97 @@ class HabitRegisterService
     {
         return HabitRegister::query()
             ->whereHas('habit', fn ($query) => $query->where('user_id', $userId))
-            ->with(['habit', 'diary'])
-            ->latest('occurred_at')
+            ->with(['habit', 'diary', 'page'])
+            ->latest('updated_at')
             ->get();
     }
 
     public function criar(int $habitId, int $userId, array $dados): HabitRegister
     {
         $habit = $this->buscarHabit($habitId, $userId);
-        $this->buscarDiario((int) $dados['diary_id'], $userId);
-
-        return $habit->registers()->create($dados);
-    }
-
-    public function sincronizar(int $habitId, int $userId, array $dados): HabitRegister
-    {
-        $habit = $this->buscarHabit($habitId, $userId);
-        $diario = $this->buscarDiario((int) $dados['diary_id'], $userId);
-
-        $register = HabitRegister::query()->firstOrCreate(
-            [
-                'habit_id' => $habit->id,
-                'diary_id' => $diario->id,
-                'source_key' => $dados['source_key'],
-            ],
-            [
-                'trigger_text' => $dados['trigger_text'],
-                'occurred_at' => $dados['occurred_at'],
-                'intensity' => $dados['intensity'],
-            ]
+        [$diary, $page] = $this->validarContextoDaPagina(
+            (int) $dados['diary_id'],
+            (int) $dados['page_id'],
+            $userId
         );
 
-        if (!$register->wasRecentlyCreated) {
-            $register->update([
-                'trigger_text' => $dados['trigger_text'],
-                'intensity' => $dados['intensity'],
-            ]);
-        }
+        return $this->salvarRegistroDaPagina($habit, $diary, $page, $dados);
+    }
 
-        return $register->refresh()->load('diary');
+    /** Sincroniza a fotografia atual das marcações de hábitos de uma página. */
+    public function sincronizarPagina(int $diaryId, int $pageId, int $userId, array $registros): array
+    {
+        return DB::transaction(function () use ($diaryId, $pageId, $userId, $registros) {
+            [$diary, $page] = $this->validarContextoDaPagina($diaryId, $pageId, $userId);
+            $habitIds = [];
+            $salvos = [];
+
+            foreach ($registros as $dados) {
+                $habit = $this->buscarHabit((int) $dados['habit_id'], $userId);
+                $habitIds[] = $habit->id;
+                $salvos[] = $this->salvarRegistroDaPagina($habit, $diary, $page, $dados);
+            }
+
+            $obsoletos = HabitRegister::query()->where('page_id', $page->id);
+            if ($habitIds !== []) {
+                $obsoletos->whereNotIn('habit_id', array_unique($habitIds));
+            }
+            $obsoletos->delete();
+
+            return collect($salvos)->map(fn (HabitRegister $register) =>
+                $register->refresh()->load(['habit', 'diary', 'page'])
+            )->all();
+        });
     }
 
     public function atualizar(int $habitId, int $registerId, int $userId, array $dados): HabitRegister
     {
         $register = $this->buscarRegistro($habitId, $registerId, $userId);
-        if (isset($dados['diary_id'])) {
-            $this->buscarDiario((int) $dados['diary_id'], $userId);
-        }
-        $register->update($dados);
+        $diaryId = (int) ($dados['diary_id'] ?? $register->diary_id);
+        $pageId = (int) ($dados['page_id'] ?? $register->page_id);
+        [$diary, $page] = $this->validarContextoDaPagina($diaryId, $pageId, $userId);
 
-        return $register->refresh()->load('diary');
+        $register->update([
+            'diary_id' => $diary->id,
+            'page_id' => $page->id,
+            ...array_intersect_key($dados, array_flip(['trigger_text', 'trigger_content', 'intensity'])),
+        ]);
+
+        return $register->refresh()->load(['habit', 'diary', 'page']);
     }
 
     public function excluir(int $habitId, int $registerId, int $userId): void
     {
         $this->buscarRegistro($habitId, $registerId, $userId)->delete();
+    }
+
+    private function salvarRegistroDaPagina(Habit $habit, Diario $diary, Page $page, array $dados): HabitRegister
+    {
+        $register = HabitRegister::query()->firstOrNew([
+            'habit_id' => $habit->id,
+            'page_id' => $page->id,
+        ]);
+
+        $register->fill([
+            'diary_id' => $diary->id,
+            'trigger_text' => $dados['trigger_text'],
+            'trigger_content' => $dados['trigger_content'],
+            'intensity' => $dados['intensity'] ?? 3,
+        ]);
+        $register->save();
+
+        return $register;
+    }
+
+    private function validarContextoDaPagina(int $diaryId, int $pageId, int $userId): array
+    {
+        $diary = $this->buscarDiario($diaryId, $userId);
+        $page = Page::query()
+            ->where('user_id', $userId)
+            ->where('diary_id', $diary->id)
+            ->findOrFail($pageId);
+
+        return [$diary, $page];
     }
 
     private function buscarRegistro(int $habitId, int $registerId, int $userId): HabitRegister
@@ -84,6 +123,7 @@ class HabitRegisterService
 
         return HabitRegister::query()
             ->where('habit_id', $habitId)
+            ->whereHas('page', fn ($query) => $query->where('user_id', $userId))
             ->findOrFail($registerId);
     }
 

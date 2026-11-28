@@ -50,18 +50,32 @@ export interface HabitRegister {
   id: number;
   habit_id: number;
   diary_id: number | null;
-  source_key: string | null;
+  page_id: number | null;
   trigger_text: string | null;
-  occurred_at: string;
+  trigger_content: HabitTriggerContent | null;
+  occurred_at?: string | null;
   intensity: number;
   created_at?: string;
   updated_at?: string;
 }
 
-export interface HabitRegisterInput {
-  diary_id: number;
+export interface HabitOccurrenceContent {
+  order: number;
   source_key: string;
+  from: number;
+  to: number;
+  text: string;
+  slice: Record<string, unknown>;
+}
+
+export interface HabitTriggerContent {
+  version: 1;
+  occurrences: HabitOccurrenceContent[];
+}
+
+export interface HabitRegisterInput {
+  habit_id: number;
   trigger_text: string;
-  occurred_at: string;
+  trigger_content: HabitTriggerContent;
   intensity: number;
 }

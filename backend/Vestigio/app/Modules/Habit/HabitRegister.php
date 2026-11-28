@@ -5,6 +5,7 @@ namespace App\Modules\Habit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\Diario\Diario;
+use App\Modules\Diario\Page;
 
 class HabitRegister extends Model
 {
@@ -13,16 +14,16 @@ class HabitRegister extends Model
     protected $fillable = [
         'habit_id',
         'diary_id',
-        'source_key',
+        'page_id',
         'trigger_text',
-        'occurred_at',
+        'trigger_content',
         'intensity',
     ];
 
     protected function casts(): array
     {
         return [
-            'occurred_at' => 'datetime',
+            'trigger_content' => 'array',
             'intensity' => 'integer',
         ];
     }
@@ -35,5 +36,10 @@ class HabitRegister extends Model
     public function diary(): BelongsTo
     {
         return $this->belongsTo(Diario::class, 'diary_id');
+    }
+
+    public function page(): BelongsTo
+    {
+        return $this->belongsTo(Page::class, 'page_id');
     }
 }
